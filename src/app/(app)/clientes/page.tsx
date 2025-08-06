@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import withAuth from "@/components/auth/withAuth";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
+import axios from 'axios'; // Importa o axios
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,6 @@ import { MoreHorizontal, Trash2, MessageSquare } from "lucide-react";
 import AddClientForm from '@/components/clientes/AddClientForm';
 import { formatPhoneForWhatsApp } from '@/lib/formatters';
 
-// A interface reflete a estrutura exata dos seus dados
 interface Cliente {
   _id: string;
   fullName: string;
@@ -51,14 +51,21 @@ function ClientesPage() {
     queryKey: ['clientes', debouncedSearchTerm],
     queryFn: async () => api.get('/clientes', { params: { search: debouncedSearchTerm } }).then(res => res.data)
   });
-
+  
+  // --- CORREÇÃO AQUI ---
   const { mutate: deleteCliente } = useMutation({
     mutationFn: (id: string) => api.delete(`/clientes/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
       alert('Cliente excluído com sucesso!');
     },
-    onError: (err: any) => { alert(err.response?.data?.message || 'Erro ao excluir cliente.'); }
+    onError: (error: unknown) => { // Alterado de 'any' para 'unknown'
+      let errorMessage = 'Erro ao excluir cliente.';
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data?.message || errorMessage;
+      }
+      alert(errorMessage);
+    }
   });
 
   const handleEdit = (cliente: Cliente) => { setEditingClient(cliente); setIsModalOpen(true); };
@@ -68,7 +75,9 @@ function ClientesPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="flex flex-col gap-4 mb-10 md:flex-row md:justify-between md:items-center">
-        <h1 className="text-3xl font-bold text-gray-800">Gestão de Clientes</h1>
+        <h1 className="text-3xl font-bold text-gray-800">
+          Gestão de Clientes
+        </h1>
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <Input 
             placeholder="Buscar por nome, CPF ou telefone..."
@@ -76,7 +85,9 @@ function ClientesPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Button onClick={handleCreate} className="text-white">Cadastrar Novo Cliente</Button>
+          <Button onClick={handleCreate} className="text-white">
+            Cadastrar Novo Cliente
+          </Button>
         </div>
       </header>
 
@@ -84,9 +95,14 @@ function ClientesPage() {
         <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>{editingClient ? 'Editar Cliente' : 'Novo Cliente'}</DialogTitle>
-            <DialogDescription>{editingClient ? 'Altere os dados.' : 'Preencha os dados do novo cliente.'}</DialogDescription>
+            <DialogDescription>
+              {editingClient ? 'Altere os dados do cliente abaixo.' : 'Preencha os dados do novo cliente.'}
+            </DialogDescription>
           </DialogHeader>
-          <AddClientForm onSuccess={() => setIsModalOpen(false)} initialData={editingClient} />
+          <AddClientForm 
+            onSuccess={() => setIsModalOpen(false)} 
+            initialData={editingClient}
+          />
         </DialogContent>
       </Dialog>
       
@@ -94,7 +110,12 @@ function ClientesPage() {
         <div className="overflow-x-auto">
           <Table className="min-w-[600px]">
             <TableHeader>
-              <TableRow><TableHead>Nome</TableHead><TableHead>CPF</TableHead><TableHead>Telefone</TableHead><TableHead className="text-right">Ações</TableHead></TableRow>
+              <TableRow>
+                <TableHead>Nome</TableHead>
+                <TableHead>CPF</TableHead>
+                <TableHead>Telefone</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (<TableRow><TableCell colSpan={4}>Carregando...</TableCell></TableRow>) : 

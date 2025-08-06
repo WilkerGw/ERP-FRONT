@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react'; // useEffect removido daqui
 import withAuth from "@/components/auth/withAuth";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
@@ -77,9 +77,7 @@ function AgendamentosPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editingAgendamento ? 'Editar Agendamento' : 'Novo Agendamento'}</DialogTitle>
-            <DialogDescription>
-              {editingAgendamento ? 'Altere os dados.' : 'Preencha os dados.'}
-            </DialogDescription>
+            <DialogDescription>{editingAgendamento ? 'Altere os dados.' : 'Preencha os dados.'}</DialogDescription>
           </DialogHeader>
           <AgendamentoForm onSuccess={() => setIsModalOpen(false)} initialData={editingAgendamento} />
         </DialogContent>
