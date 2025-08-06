@@ -39,26 +39,31 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="p-8 bg-white rounded-lg shadow-md w-full max-w-md">
+    // Removido o bg-gray-100 para o gradiente aparecer
+    <div className="flex items-center justify-center min-h-screen">
+      {/* Documentação: 
+        Aplicamos as classes do efeito de vidro diretamente neste container,
+        já que ele não usa o componente Card.
+      */}
+      <div className="p-8 bg-card backdrop-blur-lg border border-border rounded-xl shadow-xl w-full max-w-md text-card-foreground">
         <h1 className="text-2xl font-bold text-center mb-6">Login do Sistema</h1>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="email">Email</label>
+            <label className="block mb-2" htmlFor="email">Email</label>
             <input
               id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg" required
+              className="w-full px-3 py-2 border rounded-lg bg-input backdrop-blur-sm border-border" required
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 mb-2" htmlFor="senha">Senha</label>
+            <label className="block mb-2" htmlFor="senha">Senha</label>
             <input
               id="senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg" required
+              className="w-full px-3 py-2 border rounded-lg bg-input backdrop-blur-sm border-border" required
             />
           </div>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-          <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+          <button type="submit" className="w-full bg-primary/80 text-primary-foreground py-2 rounded-lg hover:bg-primary/90 transition-colors">
             Entrar
           </button>
         </form>

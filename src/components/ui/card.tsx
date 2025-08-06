@@ -6,8 +6,12 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
+      // Documentação:
+      // - bg-card: Usa a cor da variável --card (que agora tem transparência).
+      // - backdrop-blur-lg: Aplica o desfoque de fundo, o coração do efeito.
+      // - shadow-xl: Aumentamos a sombra para dar mais profundidade.
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-xl backdrop-blur-lg",
         className
       )}
       {...props}
@@ -65,7 +69,9 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-content"
-      className={cn("px-6", className)}
+      // Removemos o padding para que ele seja aplicado em elementos internos se necessário
+      // Isso evita padding duplicado em alguns layouts.
+      className={cn("", className)}
       {...props}
     />
   )
