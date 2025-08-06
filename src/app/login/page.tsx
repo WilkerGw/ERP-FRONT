@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   const router = useRouter();
   const setToken = useAuthStore((state) => state.setToken);
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     try {
       const response = await api.post('/auth/login', {
@@ -35,16 +37,13 @@ export default function LoginPage() {
         errorMessage = err.response.data?.error || errorMessage;
       }
       setError(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    // Removido o bg-gray-100 para o gradiente aparecer
     <div className="flex items-center justify-center min-h-screen">
-      {/* Documentação: 
-        Aplicamos as classes do efeito de vidro diretamente neste container,
-        já que ele não usa o componente Card.
-      */}
       <div className="p-8 bg-card backdrop-blur-lg border border-border rounded-xl shadow-xl w-full max-w-md text-card-foreground">
         <h1 className="text-2xl font-bold text-center mb-6">Login do Sistema</h1>
         <form onSubmit={handleSubmit}>
@@ -63,8 +62,12 @@ export default function LoginPage() {
             />
           </div>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-          <button type="submit" className="w-full bg-primary/80 text-primary-foreground py-2 rounded-lg hover:bg-primary/90 transition-colors">
-            Entrar
+          <button 
+            type="submit" 
+            className="w-full bg-primary/80 text-primary-foreground py-2 rounded-lg hover:bg-primary/90 transition-colors flex justify-center items-center h-10"
+            disabled={isLoading}
+          >
+            {isLoading ? <div className="loader"></div> : 'Entrar'}
           </button>
         </form>
       </div>

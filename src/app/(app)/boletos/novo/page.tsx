@@ -52,7 +52,6 @@ function GerarParcelamentoPage() {
       const valorAParcelar = valorTotal - valorEntrada;
       const valorParcela = valorAParcelar / numParcelas;
       const novasParcelas = [];
-      // eslint-disable-next-line prefer-const
       let dataVencimento = new Date(dataPrimeiroVencimento + 'T12:00:00Z');
 
       for (let i = 0; i < numParcelas; i++) {
@@ -147,7 +146,9 @@ function GerarParcelamentoPage() {
         </Card>
       </div>
       <div className="col-span-1 lg:col-span-3 text-right">
-        <Button size="lg" type="submit" disabled={isPending}>{isPending ? 'Gerando...' : 'Gerar Boletos'}</Button>
+        <Button size="lg" type="submit" disabled={isPending} className="w-40">
+          {isPending ? <div className="loader"></div> : 'Gerar Boletos'}
+        </Button>
       </div>
     </form>
   );

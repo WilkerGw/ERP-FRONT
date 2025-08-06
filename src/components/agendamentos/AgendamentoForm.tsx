@@ -62,7 +62,9 @@ export default function AgendamentoForm({ onSuccess, initialData }: AgendamentoF
           <FormField control={form.control} name="status" render={({ field }) => (<FormItem><FormLabel>Status</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl><SelectContent><SelectItem value="Aberto">Aberto</SelectItem><SelectItem value="Compareceu">Compareceu</SelectItem><SelectItem value="Faltou">Faltou</SelectItem><SelectItem value="Cancelado">Cancelado</SelectItem></SelectContent></Select><FormMessage/></FormItem>)}/>
         )}
         <FormField control={form.control} name="observation" render={({ field }) => (<FormItem><FormLabel>Observação</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)} />
-        <Button type="submit" disabled={isPending}>{isPending ? 'Salvando...' : 'Salvar Agendamento'}</Button>
+        <Button type="submit" disabled={isPending} className="w-44">
+          {isPending ? <div className="loader"></div> : 'Salvar Agendamento'}
+        </Button>
       </form>
     </Form>
   );
