@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AgendamentoSchema, TAgendamentoSchema } from '@/lib/validators/agendamentoValidator';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
-
+import axios from 'axios';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,39 +16,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 type Agendamento = TAgendamentoSchema & { _id: string; date: string; };
 interface AgendamentoFormProps { onSuccess: () => void; initialData?: Agendamento | null; }
 
-const defaultFormValues: TAgendamentoSchema = {
-  name: '', telephone: '', date: '', hour: '', observation: '', status: 'Aberto',
-};
-
 export default function AgendamentoForm({ onSuccess, initialData }: AgendamentoFormProps) {
   const queryClient = useQueryClient();
   const form = useForm<TAgendamentoSchema>({
     resolver: zodResolver(AgendamentoSchema),
-    defaultValues: defaultFormValues,
+    defaultValues: { status: 'Aberto', ...initialData },
   });
 
   useEffect(() => {
-    if (initialData) {
-      const formattedData = { ...initialData };
-      if (initialData.date) {
-        formattedData.date = new Date(initialData.date).toISOString().split('T')[0];
-      }
-      form.reset(formattedData);
-    } else {
-      form.reset(defaultFormValues);
+    const defaultVals = {
+      name: '', telephone: '', date: '', hour: '', observation: '', status: 'Aberto' as const, ...initialData,
+    };
+    if (initialData?.date) {
+      defaultVals.date = new Date(initialData.date).toISOString().split('T')[0];
     }
+    form.reset(defaultVals);
   }, [initialData, form]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data: TAgendamentoSchema) => initialData?._id ? api.put(`/agendamentos/${initialData._id}`, data) : api.post('/agendamentos', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agendamentos'] });
-      // Usando console.log em vez de alert
-      console.log(initialData?._id ? 'Agendamento atualizado!' : 'Agendamento salvo!');
+      alert(initialData?._id ? 'Agendamento atualizado!' : 'Agendamento salvo!');
       onSuccess();
     },
-    // Usando console.error em vez de alert
-    onError: (err: any) => console.error(err.response?.data?.message || 'Erro'),
+    onError: (error: unknown) => {
+      let errorMessage = 'Ocorreu um erro.';
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data?.message || errorMessage;
+      }
+      alert(errorMessage);
+    },
   });
 
   return (

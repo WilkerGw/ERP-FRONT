@@ -7,7 +7,7 @@ import api from '@/services/api';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ProdutoSchema, TProdutoSchema } from '@/lib/validators/produtoValidator';
-
+import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -37,7 +37,13 @@ function ProdutoForm({ onSuccess, initialData }: { onSuccess: () => void, initia
       alert(initialData?._id ? 'Produto atualizado!' : 'Produto cadastrado!');
       onSuccess();
     },
-    onError: (err: any) => alert(err.response?.data?.message || 'Erro'),
+    onError: (error: unknown) => {
+      let errorMessage = 'Ocorreu um erro.';
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data?.message || errorMessage;
+      }
+      alert(errorMessage);
+    },
   });
 
   return (

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import withAuth from "@/components/auth/withAuth";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import api from '@/services/api';
+import axios from 'axios';
 
-// ShadCN UI Components
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +18,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl } from "@/components/ui/form";
 import { Trash2, ChevronsUpDown } from 'lucide-react';
 
-// Interfaces
 interface Cliente { _id: string; fullName: string; }
 interface Produto { _id: string; nome: string; codigo: string; precoVenda: number; }
 
@@ -28,14 +27,11 @@ type VendaFormData = {
   pagamento: { metodo: string; parcelas: number; };
 };
 
-// --- Componente da Página ---
 function NovaVendaPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  
   const [clientePopoverOpen, setClientePopoverOpen] = useState(false);
   const [produtoPopoverOpen, setProdutoPopoverOpen] = useState(false);
-  
   const [clienteSearch, setClienteSearch] = useState('');
   const [produtoSearch, setProdutoSearch] = useState('');
 
@@ -55,7 +51,7 @@ function NovaVendaPage() {
     defaultValues: { cliente: null, itens: [], pagamento: { metodo: undefined, parcelas: 1 } },
   });
   
-  const { control, handleSubmit, watch, setValue, register, formState: { errors } } = form;
+  const { control, handleSubmit, watch, setValue, register } = form;
   const { fields, append, remove } = useFieldArray({ control, name: "itens" });
   const itensVenda = watch('itens');
   const valorTotal = itensVenda.reduce((acc, item) => acc + (Number(item.precoUnitario) * Number(item.quantidade)), 0);
@@ -83,14 +79,19 @@ function NovaVendaPage() {
       alert('Venda registrada com sucesso!');
       router.push('/vendas');
     },
-    onError: (err: any) => alert(err.response?.data?.message || 'Erro ao registrar venda'),
+    onError: (error: unknown) => {
+      let errorMessage = 'Erro ao registrar venda';
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data?.message || errorMessage;
+      }
+      alert(errorMessage);
+    },
   });
 
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit((data) => mutate(data))} className="p-4 md:p-8 space-y-6">
         <h1 className="text-3xl font-bold">Registrar Nova Venda</h1>
-        
         <Card>
           <CardHeader><CardTitle>1. Selecione o Cliente</CardTitle></CardHeader>
           <CardContent>
@@ -132,7 +133,6 @@ function NovaVendaPage() {
             />
           </CardContent>
         </Card>
-        
         <Card>
           <CardHeader><CardTitle>2. Adicione os Produtos</CardTitle></CardHeader>
           <CardContent>
@@ -175,7 +175,6 @@ function NovaVendaPage() {
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader><CardTitle>3. Pagamento</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -222,7 +221,6 @@ function NovaVendaPage() {
             </div>
           </CardContent>
         </Card>
-
         <div className="flex justify-end">
           <Button type="submit" size="lg" disabled={isPending || itensVenda.length === 0 || !watch('cliente')}>
             {isPending ? 'Finalizando...' : 'Finalizar Venda'}
@@ -232,5 +230,4 @@ function NovaVendaPage() {
     </Form>
   );
 }
-
 export default withAuth(NovaVendaPage);

@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import axios from 'axios';
 
 type ClienteData = TClienteSchema & { _id?: string };
 interface AddClientFormProps { onSuccess?: () => void; initialData?: ClienteData | null; }
@@ -20,7 +21,7 @@ export default function AddClientForm({ onSuccess, initialData }: AddClientFormP
   const queryClient = useQueryClient();
   const form = useForm<TClienteSchema>({
     resolver: zodResolver(ClienteSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       fullName: '', cpf: '', phone: '', birthDate: '', gender: undefined,
       address: '', cep: '', notes: '', esfericoDireito: '', cilindricoDireito: '',
       eixoDireito: '', esfericoEsquerdo: '', cilindricoEsquerdo: '',
@@ -50,7 +51,6 @@ export default function AddClientForm({ onSuccess, initialData }: AddClientFormP
 
   const { mutate, isPending } = useMutation({
     mutationFn: (clienteData: TClienteSchema) => {
-      // Não removemos mais a formatação aqui, o backend irá lidar com isso se necessário
       if (initialData?._id) {
         return api.put(`/clientes/${initialData._id}`, clienteData);
       } else {
@@ -62,7 +62,13 @@ export default function AddClientForm({ onSuccess, initialData }: AddClientFormP
       alert(initialData?._id ? 'Cliente atualizado!' : 'Cliente cadastrado!');
       onSuccess?.();
     },
-    onError: (error: any) => alert(error.response?.data?.message || 'Ocorreu um erro.'),
+    onError: (error: unknown) => {
+      let errorMessage = 'Ocorreu um erro.';
+      if (axios.isAxiosError(error) && error.response) {
+        errorMessage = error.response.data?.message || errorMessage;
+      }
+      alert(errorMessage);
+    }
   });
 
   const isEditing = !!initialData;

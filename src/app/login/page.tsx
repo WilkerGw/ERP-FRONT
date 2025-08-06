@@ -3,7 +3,8 @@
 import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
-import api from '@/services/api'; // Voltamos a usar nossa instância 'api'
+import api from '@/services/api';
+import axios from 'axios';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -27,9 +28,12 @@ export default function LoginPage() {
       setToken(token, user);
       router.push('/');
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Erro no login:', err);
-      const errorMessage = err.response?.data?.error || 'Erro de rede ou falha ao conectar.';
+      let errorMessage = 'Erro de rede ou falha ao conectar.';
+      if (axios.isAxiosError(err) && err.response) {
+        errorMessage = err.response.data?.error || errorMessage;
+      }
       setError(errorMessage);
     }
   };
