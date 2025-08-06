@@ -8,8 +8,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ProdutoSchema, TProdutoSchema } from '@/lib/validators/produtoValidator';
 import axios from 'axios';
-import { z } from 'zod'; // <<< --- ADICIONE ESTA LINHA DE IMPORTAÇÃO ---
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -20,43 +18,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MoreHorizontal } from "lucide-react";
 
 type Produto = TProdutoSchema & { _id: string };
-type ProdutoFormData = z.input<typeof ProdutoSchema>;
-
 
 function ProdutoForm({ onSuccess, initialData }: { onSuccess: () => void, initialData?: Produto | null }) {
   const queryClient = useQueryClient();
-  const form = useForm<ProdutoFormData>({
+  const form = useForm<TProdutoSchema>({
     resolver: zodResolver(ProdutoSchema),
-    defaultValues: initialData ? {
-      ...initialData,
-      precoCusto: String(initialData.precoCusto),
-      precoVenda: String(initialData.precoVenda),
-      estoque: String(initialData.estoque),
-    } : {
+    // Usamos números como padrão
+    defaultValues: initialData || {
       codigo: '',
       nome: '',
-      precoCusto: '0',
-      precoVenda: '0',
-      estoque: '0',
+      precoCusto: 0,
+      precoVenda: 0,
+      estoque: 0,
       tipo: undefined,
     },
   });
 
   useEffect(() => {
+    // A lógica de reset agora é mais simples
     if (initialData) {
-      form.reset({
-        ...initialData,
-        precoCusto: String(initialData.precoCusto),
-        precoVenda: String(initialData.precoVenda),
-        estoque: String(initialData.estoque),
-      });
+      form.reset(initialData);
     } else {
       form.reset({
         codigo: '',
         nome: '',
-        precoCusto: '0',
-        precoVenda: '0',
-        estoque: '0',
+        precoCusto: 0,
+        precoVenda: 0,
+        estoque: 0,
         tipo: undefined,
       });
     }
@@ -80,7 +68,7 @@ function ProdutoForm({ onSuccess, initialData }: { onSuccess: () => void, initia
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((data) => mutate(data as TProdutoSchema))} className="space-y-4">
+      <form onSubmit={form.handleSubmit((data) => mutate(data))} className="space-y-4">
         <FormField control={form.control} name="codigo" render={({ field }) => (<FormItem><FormLabel>Código</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
         <FormField control={form.control} name="nome" render={({ field }) => (<FormItem><FormLabel>Nome do Produto</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />
         <FormField control={form.control} name="tipo" render={({ field }) => (<FormItem><FormLabel>Tipo</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl><SelectContent><SelectItem value="Óculos de Sol">Óculos de Sol</SelectItem><SelectItem value="Óculos de Grau">Óculos de Grau</SelectItem><SelectItem value="Lente de Contato">Lente de Contato</SelectItem><SelectItem value="Serviço/Conserto">Serviço/Conserto</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
