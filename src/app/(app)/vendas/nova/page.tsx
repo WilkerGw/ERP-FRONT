@@ -1,0 +1,236 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import withAuth from "@/components/auth/withAuth";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import api from '@/services/api';
+
+// ShadCN UI Components
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl } from "@/components/ui/form";
+import { Trash2, ChevronsUpDown } from 'lucide-react';
+
+// Interfaces
+interface Cliente { _id: string; fullName: string; }
+interface Produto { _id: string; nome: string; codigo: string; precoVenda: number; }
+
+type VendaFormData = {
+  cliente: Cliente | null;
+  itens: { produto: Produto; quantidade: number; precoUnitario: number; }[];
+  pagamento: { metodo: string; parcelas: number; };
+};
+
+// --- Componente da Página ---
+function NovaVendaPage() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  
+  const [clientePopoverOpen, setClientePopoverOpen] = useState(false);
+  const [produtoPopoverOpen, setProdutoPopoverOpen] = useState(false);
+  
+  const [clienteSearch, setClienteSearch] = useState('');
+  const [produtoSearch, setProdutoSearch] = useState('');
+
+  const { data: clientes } = useQuery<Cliente[]>({
+    queryKey: ['clientes', clienteSearch],
+    queryFn: () => api.get(`/clientes?search=${clienteSearch}`).then(res => res.data),
+    enabled: clienteSearch.length >= 1,
+  });
+
+  const { data: produtos } = useQuery<Produto[]>({
+    queryKey: ['produtos', produtoSearch],
+    queryFn: () => api.get(`/produtos?search=${produtoSearch}`).then(res => res.data),
+    enabled: produtoSearch.length >= 1,
+  });
+
+  const form = useForm<VendaFormData>({
+    defaultValues: { cliente: null, itens: [], pagamento: { metodo: undefined, parcelas: 1 } },
+  });
+  
+  const { control, handleSubmit, watch, setValue, register, formState: { errors } } = form;
+  const { fields, append, remove } = useFieldArray({ control, name: "itens" });
+  const itensVenda = watch('itens');
+  const valorTotal = itensVenda.reduce((acc, item) => acc + (Number(item.precoUnitario) * Number(item.quantidade)), 0);
+  const metodoPagamento = watch('pagamento.metodo');
+  
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: VendaFormData) => {
+      const payload = {
+        cliente: data.cliente?._id,
+        itens: data.itens.map(item => ({
+          produto: item.produto._id,
+          quantidade: Number(item.quantidade),
+          precoUnitario: Number(item.precoUnitario),
+        })),
+        pagamento: {
+          metodo: data.pagamento.metodo,
+          parcelas: Number(data.pagamento.parcelas),
+        },
+        valorTotal,
+      };
+      return api.post('/vendas', payload);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendas'] });
+      alert('Venda registrada com sucesso!');
+      router.push('/vendas');
+    },
+    onError: (err: any) => alert(err.response?.data?.message || 'Erro ao registrar venda'),
+  });
+
+  return (
+    <Form {...form}>
+      <form onSubmit={handleSubmit((data) => mutate(data))} className="p-4 md:p-8 space-y-6">
+        <h1 className="text-3xl font-bold">Registrar Nova Venda</h1>
+        
+        <Card>
+          <CardHeader><CardTitle>1. Selecione o Cliente</CardTitle></CardHeader>
+          <CardContent>
+            <Controller
+              control={control}
+              name="cliente"
+              rules={{ required: "Cliente é obrigatório" }}
+              render={({ field, fieldState }) => (
+                <>
+                  <Popover open={clientePopoverOpen} onOpenChange={setClientePopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" role="combobox" className="w-full justify-between">
+                        {field.value ? field.value.fullName : "Selecione um cliente..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                      <Command>
+                        <CommandInput placeholder="Buscar cliente por nome ou CPF..." onValueChange={setClienteSearch} />
+                        <CommandList>
+                          <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                          <CommandGroup>
+                            {clientes?.map(cliente => (
+                              <CommandItem key={cliente._id} value={cliente.fullName} onSelect={() => {
+                                setValue('cliente', cliente, { shouldValidate: true });
+                                setClientePopoverOpen(false);
+                              }}>
+                                {cliente.fullName}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  {fieldState.error && <p className="text-sm text-red-600 mt-1">{fieldState.error.message}</p>}
+                </>
+              )}
+            />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader><CardTitle>2. Adicione os Produtos</CardTitle></CardHeader>
+          <CardContent>
+            <Popover open={produtoPopoverOpen} onOpenChange={setProdutoPopoverOpen}>
+              <PopoverTrigger asChild><Button type="button" variant="outline">Adicionar Produto</Button></PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <Command>
+                  <CommandInput placeholder="Buscar produto por nome ou código..." onValueChange={setProdutoSearch} />
+                  <CommandList>
+                    <CommandEmpty>Nenhum produto encontrado.</CommandEmpty>
+                    <CommandGroup>
+                      {produtos?.map(produto => (
+                        <CommandItem key={produto._id} value={produto.nome} onSelect={() => {
+                          append({ produto, quantidade: 1, precoUnitario: produto.precoVenda });
+                          setProdutoPopoverOpen(false);
+                        }}>
+                          {produto.nome} ({produto.codigo})
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <div className="overflow-x-auto mt-4">
+              <Table className="min-w-[600px]">
+                <TableHeader><TableRow><TableHead>Produto</TableHead><TableHead className="w-[100px]">Qtd.</TableHead><TableHead className="w-[150px]">Preço Unit.</TableHead><TableHead>Subtotal</TableHead><TableHead className="w-[50px]"></TableHead></TableRow></TableHeader>
+                <TableBody>
+                  {fields.map((field, index) => (
+                    <TableRow key={field.id}>
+                      <TableCell>{field.produto.nome}</TableCell>
+                      <TableCell><Input type="number" defaultValue={1} {...register(`itens.${index}.quantidade`)} className="w-20" /></TableCell>
+                      <TableCell><Input type="number" step="0.01" {...register(`itens.${index}.precoUnitario`)} className="w-28" /></TableCell>
+                      <TableCell>{(itensVenda[index]?.quantidade * itensVenda[index]?.precoUnitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                      <TableCell><Button variant="ghost" size="icon" type="button" onClick={() => remove(index)}><Trash2 className="h-4 w-4 text-red-500" /></Button></TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>3. Pagamento</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Controller
+                control={control}
+                name="pagamento.metodo"
+                rules={{ required: "Método de pagamento é obrigatório" }}
+                render={({ field, fieldState }) => (
+                  <div>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Selecione o método..." /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        <SelectItem value="Dinheiro">Dinheiro</SelectItem>
+                        <SelectItem value="Pix">Pix</SelectItem>
+                        <SelectItem value="Débito">Débito</SelectItem>
+                        <SelectItem value="Crédito">Crédito</SelectItem>
+                        <SelectItem value="Boleto">Boleto</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error && <p className="text-sm text-red-600 mt-1">{fieldState.error.message}</p>}
+                  </div>
+                )}
+              />
+              {(metodoPagamento === 'Crédito' || metodoPagamento === 'Boleto') && (
+                <Controller
+                  control={control}
+                  name="pagamento.parcelas"
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                      <FormControl><SelectTrigger><SelectValue placeholder="Nº de Parcelas" /></SelectTrigger></FormControl>
+                      <SelectContent>
+                        {Array.from({ length: metodoPagamento === 'Crédito' ? 15 : 10 }, (_, i) => i + 1).map(p => (
+                          <SelectItem key={p} value={String(p)}>{p}x</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              )}
+            </div>
+            <div className="text-right text-2xl font-bold">
+              Total: {valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end">
+          <Button type="submit" size="lg" disabled={isPending || itensVenda.length === 0 || !watch('cliente')}>
+            {isPending ? 'Finalizando...' : 'Finalizar Venda'}
+          </Button>
+        </div>
+      </form>
+    </Form>
+  );
+}
+
+export default withAuth(NovaVendaPage);
