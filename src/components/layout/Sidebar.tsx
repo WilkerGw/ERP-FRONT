@@ -21,11 +21,9 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    // Documentação: Aplicamos o efeito de vidro na sidebar.
-    // - bg-sidebar/80: Usamos a cor da variável --sidebar com 80% de opacidade.
-    // - backdrop-blur-xl: Adiciona um desfoque intenso no fundo.
+
     <aside className="w-full h-full bg-sidebar/80 text-white p-4 backdrop-blur-xl border-r border-sidebar-border">
-      <h1 className="text-2xl font-bold mb-8">Ótica ERP</h1>
+      <h1 className="text-2xl font-bold mb-8"></h1>
       <nav>
         <ul>
           {navItems.map((item) => (
@@ -40,7 +38,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
                     : 'hover:bg-sidebar-accent/50'
                 }`}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="h-5 w-5 text-blue-300" />
                 <span>{item.name}</span>
               </Link>
             </li>

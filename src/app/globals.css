@@ -8,12 +8,6 @@ html {
   overflow-x: hidden;
 }
 
-/* Documentação:
-   - Adicionamos um novo @keyframes chamado 'aurora'.
-   - Esta animação movimenta a posição de múltiplos gradientes radiais de fundo.
-   - Cada gradiente é um foco de luz azul com diferentes níveis de transparência,
-     e a animação faz com que eles se movam suavemente pela tela, simulando uma aurora.
-*/
 @keyframes aurora {
   0% {
     background-position: 0% 50%, 0% 50%, 0% 50%;
@@ -29,34 +23,27 @@ html {
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  /* O fundo principal continua sendo sua imagem bg.png */
-  background-image: url('/images/bg.png');
-  background-size: cover;
-  background-attachment: fixed;
-  background-position: center;
-  /* Precisamos de position: relative para posicionar o efeito de overlay */
+  background-color: #0c0a1a; /* Um fundo escuro para a aurora se destacar */
   position: relative;
   z-index: 0;
 }
 
-/* Documentação:
-   - Usamos o pseudo-elemento ::before para criar uma camada sobre o fundo do body.
-   - content: ''; é essencial para que o pseudo-elemento seja renderizado.
-   - position: absolute; e inset: 0; fazem com que ele cubra toda a tela.
-   - z-index: -1; o coloca entre o fundo do body e o conteúdo principal da página.
-   - background-image: Aqui definimos os gradientes radiais com tons de azul e baixa opacidade.
-   - animation: 'aurora' aplica a nossa nova animação para criar o efeito de movimento.
-*/
 body::before {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
+  /* Documentação:
+     - Aumentamos significativamente a opacidade (o último valor em hsla) dos gradientes.
+     - Ajustamos a parada de cor 'transparent 50%' para 'transparent 60%' para tornar as luzes mais difusas e maiores.
+     - Trocamos o fundo base do body por um tom de azul bem escuro (#0c0a1a) para que a aurora tenha mais contraste.
+  */
   background-image:
-    radial-gradient(at 20% 25%, hsla(212, 80%, 30%, 0.3) 0px, transparent 50%),
-    radial-gradient(at 80% 20%, hsla(200, 85%, 40%, 0.2) 0px, transparent 50%),
-    radial-gradient(at 50% 80%, hsla(220, 75%, 50%, 0.15) 0px, transparent 50%);
-  background-size: 200% 200%;
+    radial-gradient(at 20% 30%, hsla(210, 70%, 60%, 0.45) 0px, transparent 60%),
+    radial-gradient(at 80% 20%, hsla(230, 80%, 70%, 0.35) 0px, transparent 60%),
+    radial-gradient(at 50% 70%, hsla(0, 0%, 100%, 0.25) 0px, transparent 60%),
+    radial-gradient(at 30% 80%, hsla(220, 60%, 50%, 0.4) 0px, transparent 60%);
+  background-size: 300% 300%;
   animation: aurora 25s ease infinite;
 }
 

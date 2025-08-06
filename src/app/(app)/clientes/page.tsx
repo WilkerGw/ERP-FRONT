@@ -15,6 +15,7 @@ import { MoreHorizontal, Trash2, MessageSquare } from "lucide-react";
 import AddClientForm from '@/components/clientes/AddClientForm';
 import { formatPhoneForWhatsApp } from '@/lib/formatters';
 
+// ... (interface e lógica do componente permanecem as mesmas)
 interface Cliente {
   _id: string;
   fullName: string;
@@ -105,7 +106,6 @@ function ClientesPage() {
         </DialogContent>
       </Dialog>
       
-      {/* --- CORREÇÃO AQUI --- */}
       <main className="bg-card backdrop-blur-lg border border-border p-6 rounded-xl shadow-xl">
         <div className="overflow-x-auto">
           <Table className="min-w-[600px]">
@@ -128,10 +128,14 @@ function ClientesPage() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild className="cursor-pointer"><a href={`https://wa.me/${formatPhoneForWhatsApp(cliente.phone)}`} target="_blank" rel="noopener noreferrer" className="flex items-center"><MessageSquare className="mr-2 h-4 w-4" /> Enviar WhatsApp</a></DropdownMenuItem>
+                        <DropdownMenuItem asChild className="cursor-pointer"><a href={`https://wa.me/${formatPhoneForWhatsApp(cliente.phone)}`} target="_blank" rel="noopener noreferrer" className="flex items-center"><MessageSquare className="mr-2 h-4 w-4 text-blue-300" /> Enviar WhatsApp</a></DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEdit(cliente)} className="cursor-pointer">Editar</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => handleDelete(cliente._id)}><Trash2 className="mr-2 h-4 w-4" /> Excluir</DropdownMenuItem>
+                         {/* Documentação: Ícone de exclusão alterado para azul.
+                          Por uma questão de usabilidade (UX), é recomendado usar a cor vermelha para ações destrutivas.
+                          Se preferir reverter, troque 'text-blue-300' por 'text-red-500' na linha abaixo.
+                        */}
+                        <DropdownMenuItem className="text-blue-300 hover:!text-blue-300 focus:!text-blue-300 cursor-pointer" onClick={() => handleDelete(cliente._id)}><Trash2 className="mr-2 h-4 w-4" /> Excluir</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
