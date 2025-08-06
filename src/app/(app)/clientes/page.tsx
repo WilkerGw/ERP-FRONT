@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import withAuth from "@/components/auth/withAuth";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
-import axios from 'axios'; // Importa o axios
+import axios from 'axios';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,14 +52,13 @@ function ClientesPage() {
     queryFn: async () => api.get('/clientes', { params: { search: debouncedSearchTerm } }).then(res => res.data)
   });
   
-  // --- CORREÇÃO AQUI ---
   const { mutate: deleteCliente } = useMutation({
     mutationFn: (id: string) => api.delete(`/clientes/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
       alert('Cliente excluído com sucesso!');
     },
-    onError: (error: unknown) => { // Alterado de 'any' para 'unknown'
+    onError: (error: unknown) => {
       let errorMessage = 'Erro ao excluir cliente.';
       if (axios.isAxiosError(error) && error.response) {
         errorMessage = error.response.data?.message || errorMessage;
@@ -75,7 +74,7 @@ function ClientesPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="flex flex-col gap-4 mb-10 md:flex-row md:justify-between md:items-center">
-        <h1 className="text-3xl font-bold text-gray-800">
+        <h1 className="text-3xl font-bold">
           Gestão de Clientes
         </h1>
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
@@ -85,7 +84,7 @@ function ClientesPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Button onClick={handleCreate} className="text-white">
+          <Button onClick={handleCreate}>
             Cadastrar Novo Cliente
           </Button>
         </div>
@@ -106,7 +105,8 @@ function ClientesPage() {
         </DialogContent>
       </Dialog>
       
-      <main className="bg-white p-6 rounded-lg shadow-md">
+      {/* --- CORREÇÃO AQUI --- */}
+      <main className="bg-card backdrop-blur-lg border border-border p-6 rounded-xl shadow-xl">
         <div className="overflow-x-auto">
           <Table className="min-w-[600px]">
             <TableHeader>
@@ -131,7 +131,7 @@ function ClientesPage() {
                         <DropdownMenuItem asChild className="cursor-pointer"><a href={`https://wa.me/${formatPhoneForWhatsApp(cliente.phone)}`} target="_blank" rel="noopener noreferrer" className="flex items-center"><MessageSquare className="mr-2 h-4 w-4" /> Enviar WhatsApp</a></DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEdit(cliente)} className="cursor-pointer">Editar</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-500 cursor-pointer" onClick={() => handleDelete(cliente._id)}><Trash2 className="mr-2 h-4 w-4" /> Excluir</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => handleDelete(cliente._id)}><Trash2 className="mr-2 h-4 w-4" /> Excluir</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -24,12 +24,13 @@ function VendasPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
-        <h1 className="text-3xl font-bold text-gray-800">Histórico de Vendas</h1>
-        <Button asChild className="text-white w-full md:w-auto">
+        <h1 className="text-3xl font-bold">Histórico de Vendas</h1>
+        <Button asChild className="w-full md:w-auto">
           <Link href="/vendas/nova">Registrar Nova Venda</Link>
         </Button>
       </header>
-      <main className="bg-white p-6 rounded-lg shadow-md">
+      {/* --- CORREÇÃO AQUI --- */}
+      <main className="bg-card backdrop-blur-lg border border-border p-6 rounded-xl shadow-xl">
         <div className="overflow-x-auto">
           <Table className="min-w-[600px]">
             <TableHeader>

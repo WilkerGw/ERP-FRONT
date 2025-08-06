@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react'; // useEffect removido daqui
+import { useState } from 'react';
 import withAuth from "@/components/auth/withAuth";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
@@ -66,10 +66,10 @@ function AgendamentosPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
-        <h1 className="text-3xl font-bold text-gray-800">Agendamentos</h1>
+        <h1 className="text-3xl font-bold">Agendamentos</h1>
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
           <Input placeholder="Buscar por nome..." className="w-full md:w-80" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          <Button onClick={handleCreate} className="text-white">Novo Agendamento</Button>
+          <Button onClick={handleCreate}>Novo Agendamento</Button>
         </div>
       </header>
       
@@ -83,7 +83,9 @@ function AgendamentosPage() {
         </DialogContent>
       </Dialog>
       
-      <main className="bg-white p-6 rounded-lg shadow-md">
+      {/* --- CORREÇÃO AQUI --- */}
+      {/* Substituímos as classes de fundo branco pelas classes do nosso card de vidro. */}
+      <main className="bg-card backdrop-blur-lg border border-border p-6 rounded-xl shadow-xl">
         <div className="overflow-x-auto">
           <Table className="min-w-[700px]">
             <TableHeader>
@@ -105,7 +107,7 @@ function AgendamentosPage() {
                         <DropdownMenuItem asChild className="cursor-pointer"><a href={`https://wa.me/${formatPhoneForWhatsApp(ag.telephone)}`} target="_blank" rel="noopener noreferrer" className="flex items-center"><MessageSquare className="mr-2 h-4 w-4" /> Enviar WhatsApp</a></DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEdit(ag)} className="cursor-pointer">Editar</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-500 cursor-pointer" onClick={() => {if(confirm('Tem certeza?')) deleteAgendamento(ag._id)}}><Trash2 className="mr-2 h-4 w-4" /> Excluir</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive cursor-pointer" onClick={() => {if(confirm('Tem certeza?')) deleteAgendamento(ag._id)}}><Trash2 className="mr-2 h-4 w-4" /> Excluir</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -32,7 +32,6 @@ function BoletosPage() {
   const [filtro, setFiltro] = useState('Abertos');
   const queryClient = useQueryClient();
 
-  // A chamada useQuery precisa ter 'queryKey' e 'queryFn'
   const { data: grupos, isLoading } = useQuery<MesAgrupado[]>({
     queryKey: ['boletos', filtro],
     queryFn: async () => api.get('/boletos', { params: { status: filtro } }).then(res => res.data),
@@ -48,8 +47,8 @@ function BoletosPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
-        <h1 className="text-3xl font-bold text-gray-800">Gestão de Boletos</h1>
-        <Button asChild className="text-white w-full md:w-auto">
+        <h1 className="text-3xl font-bold">Gestão de Boletos</h1>
+        <Button asChild className="w-full md:w-auto">
           <Link href="/boletos/novo">Gerar Parcelamento</Link>
         </Button>
       </header>
@@ -84,15 +83,17 @@ function BoletosPage() {
                       hoje.setHours(0,0,0,0);
                       const isAtrasado = new Date(boleto.dueDate) < hoje && boleto.status === 'aberto';
                       return (
-                        <div key={boleto._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-3 rounded-md border">
+                        // --- CORREÇÃO AQUI ---
+                        // Aplicamos um fundo sutil e borda aos itens da lista para melhor contraste
+                        <div key={boleto._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-3 rounded-md border bg-background/30 border-border">
                           <div className="flex flex-col text-center sm:text-left">
                             <span className="font-semibold">{boleto.clienteInfo.fullName}</span>
-                            <span className="text-sm text-gray-500">{boleto.description}</span>
+                            <span className="text-sm text-muted-foreground">{boleto.description}</span>
                           </div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-center sm:text-right">
                             <div className="text-sm">Venc.: {new Date(boleto.dueDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</div>
                             <div>
-                              <span className={`font-bold text-lg ${isAtrasado ? 'text-red-500' : ''}`}>
+                              <span className={`font-bold text-lg ${isAtrasado ? 'text-destructive' : ''}`}>
                                 {boleto.parcelValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                               </span>
                             </div>

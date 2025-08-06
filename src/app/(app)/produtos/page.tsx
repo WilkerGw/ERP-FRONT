@@ -23,7 +23,6 @@ function ProdutoForm({ onSuccess, initialData }: { onSuccess: () => void, initia
   const queryClient = useQueryClient();
   const form = useForm<TProdutoSchema>({
     resolver: zodResolver(ProdutoSchema),
-    // Usamos números como padrão
     defaultValues: initialData || {
       codigo: '',
       nome: '',
@@ -35,7 +34,6 @@ function ProdutoForm({ onSuccess, initialData }: { onSuccess: () => void, initia
   });
 
   useEffect(() => {
-    // A lógica de reset agora é mais simples
     if (initialData) {
       form.reset(initialData);
     } else {
@@ -105,10 +103,10 @@ function ProdutosPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
-        <h1 className="text-3xl font-bold text-gray-800">Gestão de Produtos</h1>
+        <h1 className="text-3xl font-bold">Gestão de Produtos</h1>
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
           <Input placeholder="Buscar por nome ou código..." className="w-full md:w-80" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          <Button onClick={handleCreate} className="text-white">Cadastrar Novo Produto</Button>
+          <Button onClick={handleCreate}>Cadastrar Novo Produto</Button>
         </div>
       </header>
       
@@ -122,7 +120,8 @@ function ProdutosPage() {
         </DialogContent>
       </Dialog>
       
-      <main className="bg-white p-6 rounded-lg shadow-md">
+      {/* --- CORREÇÃO AQUI --- */}
+      <main className="bg-card backdrop-blur-lg border border-border p-6 rounded-xl shadow-xl">
         <div className="overflow-x-auto">
           <Table className="min-w-[700px]">
             <TableHeader>
