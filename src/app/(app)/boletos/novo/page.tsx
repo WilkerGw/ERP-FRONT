@@ -52,7 +52,12 @@ function GerarParcelamentoPage() {
       const valorAParcelar = valorTotal - valorEntrada;
       const valorParcela = valorAParcelar / numParcelas;
       const novasParcelas = [];
-      let dataVencimento = new Date(dataPrimeiroVencimento + 'T12:00:00Z');
+      
+      // --- CORREÇÃO AQUI ---
+      // Trocamos 'let' por 'const' para resolver o erro do build.
+      // Apesar de o objeto 'dataVencimento' ser modificado, a variável em si
+      // não é reatribuída, então 'const' é o correto.
+      const dataVencimento = new Date(dataPrimeiroVencimento + 'T12:00:00Z');
 
       for (let i = 0; i < numParcelas; i++) {
         novasParcelas.push({
