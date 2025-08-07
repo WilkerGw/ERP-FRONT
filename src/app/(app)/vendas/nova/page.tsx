@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import withAuth from "@/components/auth/withAuth";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray, Controller, FieldErrors } from 'react-hook-form';
 import api from '@/services/api';
 import axios from 'axios';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,7 +23,6 @@ import { Trash2, ChevronsUpDown } from 'lucide-react';
 interface Cliente { _id: string; fullName: string; }
 interface Produto { _id: string; nome: string; codigo: string; precoVenda: number; }
 
-// Função para obter a data de hoje no formato YYYY-MM-DD
 const getTodayString = () => new Date().toISOString().split('T')[0];
 
 function NovaVendaPage() {
@@ -59,7 +58,7 @@ function NovaVendaPage() {
   const { control, handleSubmit, watch, setValue, register } = form;
   const { fields, append, remove } = useFieldArray({ control, name: "itens" });
   const itensVenda = watch('itens');
-  const valorTotal = itensVenda.reduce((acc, item) => acc + (Number(item.precoUnitario) * Number(item.quantidade)), 0);
+  const valorTotal = itensVenda.reduce((acc, item) => acc + (Number(item.precoUnitario || 0) * Number(item.quantidade || 0)), 0);
   const metodoPagamento = watch('pagamento.metodo');
   
   const { mutate, isPending } = useMutation({
@@ -76,7 +75,7 @@ function NovaVendaPage() {
           parcelas: Number(data.pagamento.parcelas),
         },
         valorTotal,
-        dataVenda: data.dataVenda, // Enviando a data para a API
+        dataVenda: data.dataVenda,
       };
       return api.post('/vendas', payload);
     },
@@ -93,15 +92,24 @@ function NovaVendaPage() {
       alert(errorMessage);
     },
   });
+  
+  const onValidSubmit = (data: TVendaSchema) => {
+    console.log("Validação passou! Enviando para a API:", data);
+    mutate(data);
+  };
+
+  const onInvalidSubmit = (errors: FieldErrors<TVendaSchema>) => {
+    console.error("Validação do formulário falhou! Erros:", errors);
+    alert("Existem erros no formulário. Verifique os campos marcados em vermelho e tente novamente.");
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit((data) => mutate(data))} className="p-4 md:p-8 space-y-6">
+      <form onSubmit={handleSubmit(onValidSubmit, onInvalidSubmit)} className="p-4 md:p-8 space-y-6">
         <h1 className="text-3xl text-blue-300">Registrar Nova Venda</h1>
         <Card>
           <CardHeader><CardTitle>1. Dados da Venda</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Campo do Cliente */}
             <FormField
               control={control}
               name="cliente"
@@ -111,7 +119,7 @@ function NovaVendaPage() {
                   <Popover open={clientePopoverOpen} onOpenChange={setClientePopoverOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
-                        <Button variant="outline" role="combobox" className="w-full justify-between bg-[#748aa9d7] border border-blue-300/10 rounded-sm text-white/50">
+                        <Button variant="outline" role="combobox" className="w-full justify-between">
                           {field.value ? field.value.fullName : "Selecione um cliente..."}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -137,8 +145,6 @@ function NovaVendaPage() {
                 </FormItem>
               )}
             />
-            
-            {/* NOVO CAMPO DE DATA ADICIONADO AQUI */}
             <FormField
               control={control}
               name="dataVenda"
@@ -158,7 +164,7 @@ function NovaVendaPage() {
           <CardHeader><CardTitle>2. Adicione os Produtos</CardTitle></CardHeader>
           <CardContent>
             <Popover open={produtoPopoverOpen} onOpenChange={setProdutoPopoverOpen}>
-              <PopoverTrigger asChild><Button type="button" variant="outline" className='justify-between bg-[#748aa9d7] border border-blue-300/10 rounded-sm text-white/50'>Adicionar Produto</Button></PopoverTrigger>
+              <PopoverTrigger asChild><Button type="button" variant="outline">Adicionar Produto</Button></PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                 <Command>
                   <CommandInput placeholder="Buscar produto..." onValueChange={setProdutoSearch} />
@@ -185,8 +191,8 @@ function NovaVendaPage() {
                   {fields.map((field, index) => (
                     <TableRow key={field.id}>
                       <TableCell>{field.produto.nome}</TableCell>
-                      <TableCell><Input type="number" defaultValue={1} {...register(`itens.${index}.quantidade`)} className="w-20" /></TableCell>
-                      <TableCell><Input type="number" step="0.01" {...register(`itens.${index}.precoUnitario`)} className="w-28" /></TableCell>
+                      <TableCell><Input type="number" defaultValue={1} {...register(`itens.${index}.quantidade`, { valueAsNumber: true })} className="w-20" /></TableCell>
+                      <TableCell><Input type="number" step="0.01" {...register(`itens.${index}.precoUnitario`, { valueAsNumber: true })} className="w-28" /></TableCell>
                       <TableCell>{(itensVenda[index]?.quantidade * itensVenda[index]?.precoUnitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
                       <TableCell><Button variant="ghost" size="icon" type="button" onClick={() => remove(index)}><Trash2 className="h-4 w-4 text-red-500" /></Button></TableCell>
                     </TableRow>
@@ -216,7 +222,7 @@ function NovaVendaPage() {
                         <SelectItem value="Boleto">Boleto</SelectItem>
                       </SelectContent>
                     </Select>
-                    {fieldState.error && <p className="text-sm text-red-600 mt-1">{fieldState.error.message}</p>}
+                    {fieldState.error && <FormMessage className="mt-1">{fieldState.error.message}</FormMessage>}
                   </div>
                 )}
               />
@@ -227,7 +233,7 @@ function NovaVendaPage() {
                   render={({ field }) => (
                     <div>
                       <FormLabel>Nº de Parcelas</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={String(field.value)}>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} defaultValue={String(field.value)}>
                         <FormControl><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger></FormControl>
                         <SelectContent>
                           {Array.from({ length: metodoPagamento === 'Crédito' ? 15 : 10 }, (_, i) => i + 1).map(p => (
