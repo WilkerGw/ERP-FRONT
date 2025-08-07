@@ -47,18 +47,18 @@ function BoletosPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
-        <h1 className="text-3xl font-bold">Gestão de Boletos</h1>
+        <h1 className="text-3xl text-blue-300">Boletos</h1>
         <Button asChild className="w-full md:w-auto">
           <Link href="/boletos/novo">Gerar Parcelamento</Link>
         </Button>
       </header>
       
       <Tabs value={filtro} onValueChange={setFiltro} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:grid-cols-4">
-          <TabsTrigger value="Todos">Todos</TabsTrigger>
-          <TabsTrigger value="Abertos">Abertos</TabsTrigger>
-          <TabsTrigger value="Pagos">Pagos</TabsTrigger>
-          <TabsTrigger value="Atrasados">Atrasados</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:grid-cols-4 bg-blue-950/20">
+          <TabsTrigger className='text-white' value="Todos">Todos</TabsTrigger>
+          <TabsTrigger className='text-white' value="Abertos">Abertos</TabsTrigger>
+          <TabsTrigger className='text-white' value="Pagos">Pagos</TabsTrigger>
+          <TabsTrigger className='text-white' value="Atrasados">Atrasados</TabsTrigger>
         </TabsList>
 
         <main className="mt-6 space-y-6">
@@ -69,10 +69,10 @@ function BoletosPage() {
             return (
               <Card key={`${grupo._id.ano}-${grupo._id.mes}`}>
                 <CardHeader>
-                  <CardTitle>{meses[grupo._id.mes - 1]} de {grupo._id.ano}</CardTitle>
+                  <CardTitle className='text-blue-300'>{meses[grupo._id.mes - 1]} de {grupo._id.ano}</CardTitle>
                   <CardDescription className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                    <span>Total a Receber: {grupo.valorTotalMes.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                    <span>{grupo.pagosNoMes}/{totalBoletos} pagos</span>
+                    <span className='text-white/50'>Total a Receber: {grupo.valorTotalMes.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                    <span className='text-white/50'>{grupo.pagosNoMes}/{totalBoletos} pagos</span>
                   </CardDescription>
                   <Progress value={progresso} className="w-full mt-2" />
                 </CardHeader>
@@ -87,13 +87,13 @@ function BoletosPage() {
                         // Aplicamos um fundo sutil e borda aos itens da lista para melhor contraste
                         <div key={boleto._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-3 rounded-md border bg-background/30 border-border">
                           <div className="flex flex-col text-center sm:text-left">
-                            <span className="font-semibold">{boleto.clienteInfo.fullName}</span>
-                            <span className="text-sm text-muted-foreground">{boleto.description}</span>
+                            <span className="font-semibold text-white">{boleto.clienteInfo.fullName}</span>
+                            <span className="text-sm text-white/50">{boleto.description}</span>
                           </div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-center sm:text-right">
-                            <div className="text-sm">Venc.: {new Date(boleto.dueDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</div>
+                            <div className="text-sm text-white/50">Venc.: {new Date(boleto.dueDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</div>
                             <div>
-                              <span className={`font-bold text-lg ${isAtrasado ? 'text-destructive' : ''}`}>
+                              <span className={`font-bold text-blue-300 text-lg ${isAtrasado ? 'text-destructive' : ''}`}>
                                 {boleto.parcelValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                               </span>
                             </div>

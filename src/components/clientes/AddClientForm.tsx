@@ -87,7 +87,7 @@ export default function AddClientForm({ onSuccess, initialData }: AddClientFormP
             <FormField control={form.control} name="cep" render={({ field }) => (<FormItem><FormLabel>CEP</FormLabel><FormControl><Input {...field} onChange={(e) => field.onChange(formatCEP(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="address" render={({ field }) => (<FormItem className="md:col-span-3"><FormLabel>Endereço Completo</FormLabel><FormControl><Textarea placeholder="Rua, Número, Bairro, Cidade/SP" {...field} /></FormControl><FormMessage /></FormItem>)} />
         </div>
-        <h3 className="text-lg font-medium border-b pb-2">Receita</h3>
+        <h3 className=" text-gray-400">Receita</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <FormField control={form.control} name="esfericoDireito" render={({ field }) => (<FormItem><FormLabel>Esférico (OD)</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
             <FormField control={form.control} name="esfericoEsquerdo" render={({ field }) => (<FormItem><FormLabel>Esférico (OE)</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />

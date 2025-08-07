@@ -4,30 +4,30 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
+// Documentação:
+// - Substituímos todas as variantes de estilo anteriores pela nova estilização que você solicitou.
+// - "bg-blue-300/10": Fundo azul com 10% de opacidade.
+// - "text-white": Texto branco.
+// - "rounded-lg": Bordas mais arredondadas.
+// - "hover:bg-destructive/90": Efeito hover (você pode ajustar para outra cor se desejar, como hover:bg-blue-300/20).
+// - "backdrop-blur-sm": Mantém o efeito de vidro.
+// - "border border-blue-300/90": Adiciona a borda azul semitransparente.
 const buttonVariants = cva(
-  // Documentação: Adicionamos o backdrop-blur-sm a todos os botões.
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive backdrop-blur-sm",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        // Documentação: Ajustamos as cores para usar as variáveis com transparência e adicionamos uma borda sutil.
         default:
-          "bg-primary/80 border border-primary/90 text-primary-foreground shadow-xs hover:bg-primary/90",
-        destructive:
-          "bg-destructive/80 border border-destructive/90 text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
-        outline:
-          "border bg-background/50 shadow-xs hover:bg-accent/80 hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary/80 border border-secondary/90 text-secondary-foreground shadow-xs hover:bg-secondary/80",
+          "bg-blue-300/10 text-white rounded-lg hover:bg-blue-300/20 transition-colors backdrop-blur-sm border border-blue-300/90",
+        // Mantive a variante 'ghost' para botões de ícone que não devem ter fundo
         ghost:
           "hover:bg-accent/80 hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {

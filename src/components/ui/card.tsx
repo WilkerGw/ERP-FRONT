@@ -11,7 +11,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
       // - backdrop-blur-lg: Aplica o desfoque de fundo, o coração do efeito.
       // - shadow-xl: Aumentamos a sombra para dar mais profundidade.
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-xl backdrop-blur-lg",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border p-2 shadow-xl backdrop-blur-lg",
         className
       )}
       {...props}

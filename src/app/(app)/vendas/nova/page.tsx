@@ -91,7 +91,7 @@ function NovaVendaPage() {
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit((data) => mutate(data))} className="p-4 md:p-8 space-y-6">
-        <h1 className="text-3xl font-bold">Registrar Nova Venda</h1>
+        <h1 className="text-3xl text-blue-300">Registrar Nova Venda</h1>
         <Card>
           <CardHeader><CardTitle>1. Selecione o Cliente</CardTitle></CardHeader>
           <CardContent>

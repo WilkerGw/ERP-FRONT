@@ -75,13 +75,13 @@ function ClientesPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="flex flex-col gap-4 mb-10 md:flex-row md:justify-between md:items-center">
-        <h1 className="text-3xl font-bold">
-          Gestão de Clientes
+        <h1 className="text-3xl text-blue-300">
+          Clientes
         </h1>
         <div className="flex flex-col gap-4 md:flex-row md:items-center">
           <Input 
             placeholder="Buscar por nome, CPF ou telefone..."
-            className="w-full md:w-80"
+            className="w-full md:w-80 placeholder:text-white/50"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />

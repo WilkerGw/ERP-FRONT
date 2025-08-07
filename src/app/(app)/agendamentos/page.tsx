@@ -67,9 +67,9 @@ function AgendamentosPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
-        <h1 className="text-3xl font-bold">Agendamentos</h1>
+        <h1 className="text-3xl text-blue-300">Agendamentos</h1>
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
-          <Input placeholder="Buscar por nome..." className="w-full md:w-80" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <Input placeholder="Buscar por nome..." className="w-full md:w-80 placeholder:text-white/50" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           <Button onClick={handleCreate}>Novo Agendamento</Button>
         </div>
       </header>
