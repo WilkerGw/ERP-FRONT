@@ -119,7 +119,7 @@ function NovaVendaPage() {
                   <Popover open={clientePopoverOpen} onOpenChange={setClientePopoverOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
-                        <Button variant="outline" role="combobox" className="w-full justify-between">
+                        <Button variant="outline" role="combobox" className="w-full bg-white/20 rounded-sm justify-between text-white/50">
                           {field.value ? field.value.fullName : "Selecione um cliente..."}
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
@@ -152,7 +152,7 @@ function NovaVendaPage() {
                 <FormItem>
                   <FormLabel>Data da Venda</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Input type="date" {...field} className='lg:w-[10rem]' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -164,7 +164,7 @@ function NovaVendaPage() {
           <CardHeader><CardTitle>2. Adicione os Produtos</CardTitle></CardHeader>
           <CardContent>
             <Popover open={produtoPopoverOpen} onOpenChange={setProdutoPopoverOpen}>
-              <PopoverTrigger asChild><Button type="button" variant="outline">Adicionar Produto</Button></PopoverTrigger>
+              <PopoverTrigger asChild><Button type="button" variant="outline" className='bg-white/20 rounded-sm text-white/50'>Adicionar Produto</Button></PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                 <Command>
                   <CommandInput placeholder="Buscar produto..." onValueChange={setProdutoSearch} />
@@ -213,7 +213,7 @@ function NovaVendaPage() {
                   <div>
                     <FormLabel>Método de Pagamento</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger className="mt-2"><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger className="mt-2"><SelectValue placeholder="Selecione..." className='text-white/50'/></SelectTrigger></FormControl>
                       <SelectContent>
                         <SelectItem value="Dinheiro">Dinheiro</SelectItem>
                         <SelectItem value="Pix">Pix</SelectItem>
@@ -246,7 +246,7 @@ function NovaVendaPage() {
                 />
               )}
             </div>
-            <div className="text-right text-2xl font-bold pt-4">
+            <div className="text-right text-2xl font-bold pt-4 text-blue-300">
               Total: {valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </div>
           </CardContent>

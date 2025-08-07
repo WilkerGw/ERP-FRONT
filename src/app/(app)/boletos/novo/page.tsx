@@ -113,7 +113,7 @@ function GerarParcelamentoPage() {
                 rules={{ required: true }}
                 render={({ field }) => (
                   <Popover open={clientePopoverOpen} onOpenChange={setClientePopoverOpen}>
-                    <PopoverTrigger asChild><Button variant="outline" role="combobox" className="w-full justify-between mt-2">{field.value?.fullName || "Busque por nome ou CPF..."}<ChevronsUpDown className="h-4 w-4" /></Button></PopoverTrigger>
+                    <PopoverTrigger asChild><Button variant="outline" role="combobox" className="w-full justify-between mt-2 bg-white/20 rounded-sm text-white/50">{field.value?.fullName || "Busque por nome ou CPF..."}<ChevronsUpDown className="h-4 w-4" /></Button></PopoverTrigger>
                     <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                       <Command><CommandInput onValueChange={setClienteSearch} placeholder="Buscar cliente..." /><CommandList><CommandEmpty>Nenhum cliente encontrado.</CommandEmpty><CommandGroup>
                         {clientes?.map(c => <CommandItem key={c._id} value={c.fullName} onSelect={() => { setValue('cliente', c); setClientePopoverOpen(false); }}>{c.fullName}</CommandItem>)}
@@ -151,7 +151,7 @@ function GerarParcelamentoPage() {
         </Card>
       </div>
       <div className="col-span-1 lg:col-span-3 text-right">
-        <Button size="lg" type="submit" disabled={isPending} className="w-40">
+        <Button size="lg" type="submit" disabled={isPending} className="w-40 ">
           {isPending ? <div className="loader"></div> : 'Gerar Boletos'}
         </Button>
       </div>
