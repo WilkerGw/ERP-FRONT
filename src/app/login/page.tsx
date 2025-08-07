@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
 import api from '@/services/api';
 import axios from 'axios';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -45,17 +46,17 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="p-8 bg-card backdrop-blur-lg border border-border rounded-xl shadow-xl w-full max-w-md text-card-foreground">
-        <h1 className="text-2xl font-bold text-center mb-6">Login do Sistema</h1>
+        <Image src="/images/logo-mind.png" alt="Logo" width={200} height={200} className='mx-auto'></Image>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block mb-2" htmlFor="email">Email</label>
+            <label className="block mb-2 text-white" htmlFor="email">Email</label>
             <input
               id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg bg-input backdrop-blur-sm border-border" required
             />
           </div>
           <div className="mb-6">
-            <label className="block mb-2" htmlFor="senha">Senha</label>
+            <label className="block mb-2 text-white" htmlFor="senha">Senha</label>
             <input
               id="senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg bg-input backdrop-blur-sm border-border" required
@@ -64,7 +65,7 @@ export default function LoginPage() {
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <button 
             type="submit" 
-            className="w-full bg-primary/80 text-primary-foreground py-2 rounded-lg hover:bg-primary/90 transition-colors flex justify-center items-center h-10"
+            className="w-full py-2 flex justify-center items-center h-10 bg-blue-300/10 text-white rounded-lg hover:bg-blue-300/20 transition-colors backdrop-blur-sm border border-blue-300/90"
             disabled={isLoading}
           >
             {isLoading ? <div className="loader"></div> : 'Entrar'}
