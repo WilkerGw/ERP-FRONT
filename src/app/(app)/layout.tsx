@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AppLayout({
   children,
@@ -26,19 +27,19 @@ export default function AppLayout({
           - backdrop-blur-lg: Aplica o desfoque de fundo.
           - bg-background/50: Usa a cor de fundo com 50% de transparência.
         */}
-        <header className="flex h-14 items-center gap-4 border-b bg-background/50 px-4 backdrop-blur-lg lg:hidden sticky top-0 z-30">
+        <header className="flex h-14 items-center justify-between gap-4 border-b bg-background/50 px-4 backdrop-blur-lg lg:hidden sticky top-0 z-30">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
-              <Button size="icon" variant="outline">
-                <Menu className="h-5 w-5" />
+              <Button size="icon" variant="outline" className="text-blue-300">
+                <Menu className="h-5 w-5 " />
                 <span className="sr-only">Abrir ou fechar menu</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0">
+            <SheetContent side="left" className="p-0 text-blue-300">
               <Sidebar onLinkClick={() => setIsSheetOpen(false)} />
             </SheetContent>
           </Sheet>
-          <h1 className="text-lg font-semibold">Ótica ERP</h1>
+          <Image src="/images/logo-mind.png" alt="Logo" width={32} height={32}></Image>
         </header>
 
         <main className="flex-1 overflow-y-auto">

@@ -1,16 +1,26 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Package, ShoppingCart, FileText, Calendar } from 'lucide-react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  ShoppingCart,
+  FileText,
+  Calendar,
+  BarChart3,
+} from "lucide-react";
+import Image from "next/image";
 
 const navItems = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Clientes', href: '/clientes', icon: Users },
-  { name: 'Produtos', href: '/produtos', icon: Package },
-  { name: 'Vendas', href: '/vendas', icon: ShoppingCart },
-  { name: 'Boletos', href: '/boletos', icon: FileText },
-  { name: 'Agendamentos', href: '/agendamentos', icon: Calendar },
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Relatórios", href: "/relatorios", icon: BarChart3 },
+  { name: "Agendamentos", href: "/agendamentos", icon: Calendar },
+  { name: "Clientes", href: "/clientes", icon: Users },
+  { name: "Vendas", href: "/vendas", icon: ShoppingCart },
+  { name: "Boletos", href: "/boletos", icon: FileText },
+  { name: "Produtos", href: "/produtos", icon: Package },
 ];
 
 interface SidebarProps {
@@ -21,21 +31,23 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-
-    <aside className="w-full h-full bg-sidebar/80 text-white p-4 backdrop-blur-xl border-r border-sidebar-border">
-      <h1 className="text-2xl font-bold mb-8"></h1>
+    <aside className="w-full h-full bg-gray-800 text-white p-4">
       <nav>
+        <Image
+          src="/images/logo-mind.png"
+          alt="Logo"
+          width={32}
+          height={32}
+          className="mb-4"
+        ></Image>
         <ul>
           {navItems.map((item) => (
             <li key={item.name}>
               <Link
                 href={item.href}
                 onClick={onLinkClick}
-                // Documentação: O estilo do link ativo agora usa a cor de realce da sidebar (--sidebar-accent)
                 className={`flex items-center space-x-3 p-2 rounded-md transition-colors ${
-                  pathname === item.href
-                    ? 'bg-sidebar-accent'
-                    : 'hover:bg-sidebar-accent/50'
+                  pathname === item.href ? "bg-gray-700" : "hover:bg-gray-700"
                 }`}
               >
                 <item.icon className="h-5 w-5 text-blue-300" />
