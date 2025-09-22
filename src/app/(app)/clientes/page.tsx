@@ -3,7 +3,6 @@
 import withAuth from '@/components/auth/withAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
-import { useState } from 'react';
 import { toast, Toaster } from 'sonner';
 
 // Componentes da UI
@@ -23,36 +22,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
-// Este componente ainda não existe, iremos criá-lo se necessário ou adaptar o formulário.
-// Por agora, vamos focar-nos em exibir a lista.
-// import ClientForm from '@/components/clientes/ClientForm'; 
 
-// O tipo de cliente precisa de ser atualizado para refletir o novo modelo
+// Documentação da Correção:
+// - Removido o "[key: string]: any" e definimos uma estrutura de dados mais completa
+//   para o cliente, o que resolve o erro de build do ESLint.
 type Cliente = {
   _id: string;
   fullName: string;
   cpf: string;
   phone: string;
-  // Adicionar outros campos se necessário para o formulário de edição
-  [key: string]: any; 
+  dataNascimento: string;
+  endereco: {
+    rua?: string;
+    numero?: string;
+    bairro?: string;
+    cidade?: string;
+    estado?: string;
+    cep?: string;
+  };
 };
 
 function ClientesPage() {
   const queryClient = useQueryClient();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<Cliente | undefined>(undefined);
-
-  // A query para buscar os clientes permanece a mesma
+  
   const { data: clientes, isLoading, isError } = useQuery<Cliente[]>({
     queryKey: ['clientes'],
-    // O endpoint deve corresponder ao que está definido no backend
     queryFn: () => api.get('/clientes').then((res) => res.data),
   });
 
@@ -67,17 +62,13 @@ function ClientesPage() {
     },
   });
 
-  // Funções para gerir o dialog e as ações
+  // Funções simplificadas, pois o Dialog foi temporariamente removido
   const handleAddNew = () => {
-    setSelectedClient(undefined);
-    // setIsDialogOpen(true); // Desativado temporariamente
     alert("Função 'Adicionar Novo Cliente' a ser implementada.");
   };
 
   const handleEdit = (cliente: Cliente) => {
-    setSelectedClient(cliente);
-    // setIsDialogOpen(true); // Desativado temporariamente
-    alert("Função 'Editar Cliente' a ser implementada.");
+    alert(`Função 'Editar Cliente' a ser implementada para: ${cliente.fullName}`);
   };
 
   const handleDelete = (id: string) => {
@@ -116,7 +107,6 @@ function ClientesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  {/* Documentação da Correção: Cabeçalhos da tabela atualizados */}
                   <TableHead>Nome</TableHead>
                   <TableHead>CPF</TableHead>
                   <TableHead>Telefone</TableHead>
@@ -137,11 +127,10 @@ function ClientesPage() {
                 ) : clientes && clientes.length > 0 ? (
                   clientes.map((cliente) => (
                     <TableRow key={cliente._id}>
-                      {/* Documentação da Correção: Acesso aos dados corrigido */}
-                      <TableCell className="font-medium text-gray-800">{cliente.fullName}</TableCell>
-                      <TableCell className="text-gray-800">{cliente.cpf}</TableCell>
-                      <TableCell className="text-gray-800">{cliente.phone}</TableCell>
-                      <TableCell className="text-gray-800">
+                      <TableCell className="font-medium">{cliente.fullName}</TableCell>
+                      <TableCell>{cliente.cpf}</TableCell>
+                      <TableCell>{cliente.phone}</TableCell>
+                      <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button aria-haspopup="true" size="icon" variant="ghost">
@@ -169,21 +158,6 @@ function ClientesPage() {
           </CardContent>
         </Card>
       </main>
-
-      {/* O Dialog para o formulário pode ser reativado depois de ajustarmos o formulário aos novos campos */}
-      {/*
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{selectedClient ? 'Editar Cliente' : 'Adicionar Novo Cliente'}</DialogTitle>
-          </DialogHeader>
-          // <ClientForm 
-          //   initialData={selectedClient} 
-          //   onSuccess={() => setIsDialogOpen(false)} 
-          // />
-        </DialogContent>
-      </Dialog>
-      */}
     </div>
   );
 }
