@@ -6,8 +6,8 @@ import Providers from "@/components/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ERP Ótica",
-  description: "Sistema de Gestão para Óticas",
+  title: "Mind ERP",
+  description: "ERP Completo para gestão de Óticas",
 };
 
 export default function RootLayout({
@@ -16,10 +16,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    // Documentação da Correção:
+    // - Adicionamos a tag <html> com o atributo lang="pt-BR" para indicar o idioma principal da página.
+    // - Adicionamos a tag <body>, que é onde todo o conteúdo visível da página deve residir.
+    // - Aplicamos a classe da fonte 'Inter' (`inter.className`) ao body, como é a prática recomendada pelo Next.js.
+    // - O componente <Providers> e os {children} (o conteúdo das suas páginas) ficam dentro do <body>.
     <html lang="pt-BR">
       <body className={inter.className}>
         <Providers>
-          {children} {/* Não tem mais a Sidebar aqui */}
+          {children}
         </Providers>
       </body>
     </html>

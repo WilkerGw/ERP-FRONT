@@ -94,12 +94,12 @@ function AgendamentosPage() {
               {isLoading ? (<TableRow><TableCell colSpan={6}>Carregando...</TableCell></TableRow>) : 
               agendamentos?.map((ag) => (
                 <TableRow key={ag._id}>
-                  <TableCell>{new Date(ag.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</TableCell>
-                  <TableCell>{ag.hour}</TableCell>
-                  <TableCell className="font-medium">{ag.name}</TableCell>
-                  <TableCell>{ag.telephone}</TableCell>
-                  <TableCell><Badge variant={getStatusVariant(ag.status)}>{ag.status}</Badge></TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className='text-gray-800'>{new Date(ag.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</TableCell>
+                  <TableCell className='text-gray-800'>{ag.hour}</TableCell>
+                  <TableCell className="font-medium text-gray-800">{ag.name}</TableCell>
+                  <TableCell className='text-gray-800'>{ag.telephone}</TableCell>
+                  <TableCell className='text-gray-800'><Badge variant={getStatusVariant(ag.status)}>{ag.status}</Badge></TableCell>
+                  <TableCell className="text-right text-blue-500">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">

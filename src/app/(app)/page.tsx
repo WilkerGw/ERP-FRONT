@@ -7,10 +7,10 @@ import { useQuery } from '@tanstack/react-query';
 import api from "@/services/api";
 import StatCard from "@/components/dashboard/StatCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Calendar, Cake, Users, AlertTriangle, Sparkles } from 'lucide-react';
-import { Button } from "@/components/ui/button"; // Importação do Button adicionada
+import { BarChart, Calendar, Cake, Users, AlertTriangle, Sparkles, LogOut } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
-// Interface para o insight gerado pela IA
+// Interfaces
 interface Insight {
   _id: string;
   titulo: string;
@@ -24,7 +24,7 @@ interface DashboardStats {
   boletosVencidos: number;
   boletosProximos: number;
   agendamentosProximos: number;
-  aniversariantesMes: { 
+  aniversariantesMes: {
     nome: string;
     dia: number;
   }[];
@@ -32,7 +32,6 @@ interface DashboardStats {
 
 function HomePage() {
   const router = useRouter();
-  // Versão corrigida para buscar o usuário e a função de logout
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
@@ -43,7 +42,6 @@ function HomePage() {
 
   const { data: insight, isLoading: isLoadingInsight, isError: isErrorInsight } = useQuery<Insight>({
     queryKey: ['latestInsight'],
-    // Corrigido para apontar para a rota mais genérica
     queryFn: async () => api.get('/insights/latest').then(res => res.data),
   });
 
@@ -56,11 +54,11 @@ function HomePage() {
   const isError = isErrorStats || isErrorInsight;
 
   if (isLoading) {
-    return <div className="p-8 text-white">Carregando dados do dashboard...</div>;
+    return <div className="flex items-center justify-center h-screen"><div className="loader"></div></div>;
   }
 
   if (isError) {
-    return <div className="p-8 text-red-500">Erro ao carregar os dados.</div>;
+    return <div className="p-8 text-destructive">Erro ao carregar os dados. Tente novamente mais tarde.</div>;
   }
 
   const formatCurrency = (value: number | undefined) => {
@@ -69,45 +67,52 @@ function HomePage() {
   }
 
   return (
-    <div className="p-8 min-h-screen">
-      <header className="flex flex-col sm:flex-row justify-between items-center mb-10">
-        <h1 className="text-3xl text-blue-300">
-          Dashboard
-        </h1>
-        <div className="flex items-center space-x-4">
-          <p className="text-white">Bem-vindo(a), <span className="text-blue-300 font-bold">{user?.nome || 'Usuário'}</span>!</p>
-          {/* Corrigido para usar o componente Button importado */}
-          <Button
-            onClick={handleLogout}
-            className="bg-blue-300/10 text-white px-4 py-2 rounded-lg hover:bg-destructive/90 transition-colors backdrop-blur-sm border border-blue-300/90"
-          >
-            Sair
-          </Button>
+    <div className="p-6 md:p-8 lg:p-10 min-h-screen">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Bem-vindo(a), <span className="font-semibold text-foreground">{user?.nome || 'Usuário'}</span>! Veja um resumo do seu dia.
+          </p>
         </div>
+        <Button
+          onClick={handleLogout}
+          variant="outline"
+          className="mt-4 sm:mt-0"
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          Sair
+        </Button>
       </header>
 
       <main>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <StatCard title="Vendas do Dia" value={formatCurrency(stats?.totalVendasDia)} icon={<BarChart className="text-blue-300" />} />
-          <StatCard title="Vendas do Mês" value={formatCurrency(stats?.totalVendasMes)} icon={<Calendar className="text-blue-300" />} />
-          <StatCard title="Boletos Vencidos" value={stats?.boletosVencidos} icon={<AlertTriangle className="text-blue-300" />} />
-          <StatCard title="Boletos a Vencer (7 dias)" value={stats?.boletosProximos} icon={<Calendar className="text-blue-300" />} />
-          <StatCard title="Exames Agendados (7 dias)" value={stats?.agendamentosProximos} icon={<Users className="text-blue-300" />} />
+          <StatCard title="Vendas do Dia" value={formatCurrency(stats?.totalVendasDia)} icon={<BarChart className="text-blue-500" />} />
+          <StatCard title="Vendas do Mês" value={formatCurrency(stats?.totalVendasMes)} icon={<Calendar className="text-green-500" />} />
+          <StatCard title="Boletos Vencidos" value={stats?.boletosVencidos || 0} icon={<AlertTriangle className="text-red-500" />} />
+          <StatCard title="Boletos a Vencer (7 dias)" value={stats?.boletosProximos || 0} icon={<Calendar className="text-yellow-500" />} />
+          <StatCard title="Exames Agendados (7 dias)" value={stats?.agendamentosProximos || 0} icon={<Users className="text-indigo-500" />} />
           
           <StatCard
             title="Aniversariantes do Mês"
             value={stats?.aniversariantesMes.length || 0}
-            icon={<Cake className="text-blue-300" />}
+            icon={<Cake className="text-pink-500" />}
             content={
-              <ul className="space-y-2 text-sm mt-4 max-h-32 overflow-y-auto">
+              // Documentação da Correção:
+              // - As classes 'text-white' e 'text-blue-300' foram removidas.
+              // - Usamos 'text-muted-foreground' para o texto da lista e 'text-foreground' para o dia,
+              //   garantindo que as cores venham do nosso tema global e tenham bom contraste.
+              <ul className="space-y-1 text-xs mt-2 max-h-24 overflow-y-auto">
                 {stats?.aniversariantesMes && stats.aniversariantesMes.length > 0 ? (
                   stats.aniversariantesMes.map((aniversariante, index) => (
-                    <li key={index} className="truncate text-white">
-                      <span className="font-bold text-blue-300">Dia {aniversariante.dia}</span> - {aniversariante.nome}
+                    <li key={index} className="truncate text-muted-foreground">
+                      <span className="font-semibold text-foreground">Dia {aniversariante.dia}</span> - {aniversariante.nome}
                     </li>
                   ))
                 ) : (
-                  <li className="text-gray-400">Nenhum aniversariante este mês.</li>
+                  <li className="text-muted-foreground">Nenhum aniversariante este mês.</li>
                 )}
               </ul>
             }
@@ -115,19 +120,23 @@ function HomePage() {
         </div>
 
         {insight && (
-          <div className="mt-6">
-            <Card className="bg-white/5 border-blue-300/20 text-white">
+          // Documentação da Correção:
+          // - Removidas todas as classes de cor hardcoded do Card, CardTitle, CardDescription e do parágrafo.
+          // - Os componentes agora herdam as cores corretas ('card-foreground', 'muted-foreground', etc.) do nosso tema,
+          //   tornando todo o texto perfeitamente visível.
+          <div className="mt-8">
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-blue-300">
-                  <Sparkles className="text-purple-400" />
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="text-purple-500" />
                   {insight.titulo}
                 </CardTitle>
-                <CardDescription className="text-gray-400">
+                <CardDescription>
                   Análise gerada via IA em {new Date(insight.dataGeracao).toLocaleString('pt-BR')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-300 whitespace-pre-wrap">
+                <p className="text-sm text-foreground/90 whitespace-pre-wrap">
                   {insight.conteudo}
                 </p>
               </CardContent>

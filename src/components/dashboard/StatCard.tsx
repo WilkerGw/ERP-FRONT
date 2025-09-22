@@ -1,28 +1,37 @@
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface StatCardProps {
   title: string;
   value: string | number;
-  icon: React.ReactNode; 
-  content?: React.ReactNode; // Adicionamos uma propriedade opcional para conteúdo extra
+  icon: React.ReactNode;
+  content?: React.ReactNode;
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon, content }) => {
   return (
-    // Documentação: 
-    // - Revertemos o 'bg-red-500' para 'bg-card' para manter o efeito de vidro.
-    // - Ajustamos o alinhamento para 'items-start' para alinhar o conteúdo no topo.
-    <div className="bg-card text-card-foreground p-6 rounded-xl shadow-xl flex items-start space-x-4 backdrop-blur-lg border border-border">
-      <div className="bg-primary/70 p-3 rounded-full">
-        {icon}
-      </div>
-      <div className="flex-1">
-        <p className="text-blue-300 text-sm">{title}</p>
-        <p className="text-2xl font-bold text-white">{value}</p>
-        {/* Renderiza o conteúdo extra se ele for passado */}
+    // Documentação do StatCard:
+    // - Usa o componente <Card> padrão para consistência.
+    // - O layout interno é flexível para alinhar o título e o ícone.
+    // - O ícone agora fica no cabeçalho, à direita do título, para uma aparência mais integrada.
+    // - O valor principal (`value`) tem grande destaque.
+    // - O conteúdo adicional (`content`) é renderizado abaixo, se existir.
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {title}
+        </CardTitle>
+        <div className="text-muted-foreground">
+          {icon}
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">
+          {value}
+        </div>
         {content}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

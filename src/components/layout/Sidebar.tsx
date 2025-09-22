@@ -31,26 +31,38 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-full h-full bg-gray-800 text-white p-4">
-      <nav>
-        <Image
-          src="/images/logo-mind.png"
-          alt="Logo"
-          width={32}
-          height={32}
-          className="mb-4"
-        ></Image>
-        <ul>
+    // Documentação da Sidebar:
+    // - bg-sidebar: Usa a nova cor de fundo definida no globals.css (branco).
+    // - border-r: Adiciona uma borda à direita para separar do conteúdo.
+    // - O logo é centralizado com um espaçamento melhor.
+    // - Os links de navegação têm um hover mais sutil e um estado ativo (página atual) bem definido com cor primária.
+    <aside className="w-full h-full flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
+      <div className="p-4 border-b border-sidebar-border flex justify-center">
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/images/logo-mind.png"
+            alt="Logo"
+            width={150}
+            height={150}
+            className="w-20 h-20"
+          />
+        </Link>
+      </div>
+      <nav className="flex-1 p-4">
+        <ul className="space-y-2">
           {navItems.map((item) => (
             <li key={item.name}>
               <Link
                 href={item.href}
                 onClick={onLinkClick}
-                className={`flex items-center space-x-3 p-2 rounded-md transition-colors ${
-                  pathname === item.href ? "bg-gray-700" : "hover:bg-gray-700"
-                }`}
+                className={`flex items-center gap-3 p-2 rounded-lg transition-all text-sm font-medium
+                  ${
+                    pathname === item.href
+                      ? "bg-primary/10 text-primary" // Estilo do link ativo
+                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground" // Estilo padrão e hover
+                  }`}
               >
-                <item.icon className="h-5 w-5 text-blue-300" />
+                <item.icon className="h-5 w-5" />
                 <span>{item.name}</span>
               </Link>
             </li>
