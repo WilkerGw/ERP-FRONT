@@ -42,24 +42,24 @@ function RelatoriosPage() {
   const isLoading = isLoadingFaturamento || isLoadingMetodo || isLoadingTopClientes || isLoadingAgendamentos || isLoadingFluxoCaixa;
   const valueFormatter = (number: number) => `R$ ${new Intl.NumberFormat('pt-BR').format(number).toString()}`;
 
-  if (isLoading) { return <div className="p-8 text-white">Carregando relatórios...</div> }
+  if (isLoading) { return <div className="p-8 text-gray-800">Carregando relatórios...</div> }
 
   return (
     <div className="p-4 md:p-8">
       <header className="mb-10">
-        <h1 className="text-3xl font-bold text-white">Relatórios Gerenciais</h1>
-        <p className="text-white/70 mt-1">Análise de performance da sua ótica.</p>
+        <h1 className="text-3xl font-bold text-blue-300">Relatórios Gerenciais</h1>
+        <p className="text-gray-800/50 mt-1">Análise de performance da sua ótica.</p>
       </header>
       <main className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="lg:col-span-2 bg-white/5 border-blue-300/20 text-white">
+        <Card className="lg:col-span-2 bg-white/5 border-blue-300/20 text-gray-800/50">
           <CardHeader><CardTitle className="text-blue-300">Fluxo de Caixa Futuro (Próximos 12 Meses)</CardTitle></CardHeader>
           <CardContent>
             <div style={{ width: '100%', height: 300 }}>
               <ResponsiveContainer>
                 <BarChart data={fluxoCaixa || []} margin={{ top: 5, right: 20, left: 30, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                  <XAxis dataKey="mes" stroke="#ffffff80" fontSize={12} />
-                  <YAxis tickFormatter={valueFormatter} stroke="#ffffff80" fontSize={12} width={100} />
+                  <XAxis dataKey="mes" stroke="#5e5e5e" fontSize={12} />
+                  <YAxis tickFormatter={valueFormatter} stroke="#5e5e5e" fontSize={12} width={100} />
                   <Tooltip formatter={(value: number) => valueFormatter(value)} cursor={{fill: '#ffffff10'}} contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #3B82F680', color: '#FFF' }} />
                   <Legend wrapperStyle={{ color: '#FFF' }} />
                   <Bar dataKey="Valor a Receber" fill="#22c55e" />
@@ -74,11 +74,11 @@ function RelatoriosPage() {
             <div style={{ width: '100%', height: 300 }}>
               <ResponsiveContainer>
                 <BarChart data={faturamento || []} margin={{ top: 5, right: 20, left: 30, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                  <XAxis dataKey="mes" stroke="#ffffff80" fontSize={12} />
-                  <YAxis tickFormatter={valueFormatter} stroke="#ffffff80" fontSize={12} width={100} />
-                  <Tooltip formatter={(value: number) => valueFormatter(value)} cursor={{fill: '#ffffff10'}} contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #3B82F680', color: '#FFF' }} />
-                  <Legend wrapperStyle={{ color: '#FFF' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#9e9e9e" />
+                  <XAxis dataKey="mes" stroke="#5e5e5e" fontSize={12} />
+                  <YAxis tickFormatter={valueFormatter} stroke="#5e5e5e" fontSize={12} width={100} />
+                  <Tooltip formatter={(value: number) => valueFormatter(value)} cursor={{fill: '#5e5e5e'}} contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #3B82F680', color: '#FFF' }} />
+                  <Legend wrapperStyle={{ color: '#5e5e5e' }} />
                   <Bar dataKey="Faturamento" fill="#8884d8" />
                 </BarChart>
               </ResponsiveContainer>
@@ -107,11 +107,11 @@ function RelatoriosPage() {
             <div style={{ width: '100%', height: 300 }}>
               <ResponsiveContainer>
                 <BarChart data={topClientes || []} layout="vertical" margin={{ top: 5, right: 20, left: 30, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                  <XAxis type="number" tickFormatter={valueFormatter} stroke="#ffffff80" fontSize={12} />
-                  <YAxis type="category" dataKey="name" width={120} interval={0} stroke="#ffffff80" fontSize={12} />
-                  <Tooltip formatter={(value: number) => valueFormatter(value)} cursor={{fill: '#ffffff10'}} contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #3B82F680', color: '#FFF' }} />
-                  <Legend wrapperStyle={{ color: '#FFF' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#5e5e5e" />
+                  <XAxis type="number" tickFormatter={valueFormatter} stroke="#5e5e5e" fontSize={12} />
+                  <YAxis type="category" dataKey="name" width={120} interval={0} stroke="#5e5e5e" fontSize={12} />
+                  <Tooltip formatter={(value: number) => valueFormatter(value)} cursor={{fill: '#5e5e5e'}} contentStyle={{ backgroundColor: '#1E293B', border: '1px solid #3B82F680', color: '#FFF' }} />
+                  <Legend wrapperStyle={{ color: '#5e5e5e' }} />
                   <Bar dataKey="Total Gasto" fill="#0088FE" />
                 </BarChart>
               </ResponsiveContainer>

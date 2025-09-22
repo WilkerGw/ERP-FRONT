@@ -127,10 +127,10 @@ function ClientesPage() {
                 ) : clientes && clientes.length > 0 ? (
                   clientes.map((cliente) => (
                     <TableRow key={cliente._id}>
-                      <TableCell className="font-medium">{cliente.fullName}</TableCell>
-                      <TableCell>{cliente.cpf}</TableCell>
-                      <TableCell>{cliente.phone}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-medium text-gray-800">{cliente.fullName}</TableCell>
+                      <TableCell className='text-gray-800'>{cliente.cpf}</TableCell>
+                      <TableCell className='text-gray-800'>{cliente.phone}</TableCell>
+                      <TableCell className='text-blue-500'>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button aria-haspopup="true" size="icon" variant="ghost">

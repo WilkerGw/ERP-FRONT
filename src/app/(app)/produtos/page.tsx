@@ -131,12 +131,12 @@ function ProdutosPage() {
               {isLoading ? (<TableRow><TableCell colSpan={6}>Carregando...</TableCell></TableRow>) : 
               produtos?.map((produto) => (
                 <TableRow key={produto._id}>
-                  <TableCell className="font-mono">{produto.codigo}</TableCell>
-                  <TableCell className="font-medium">{produto.nome}</TableCell>
-                  <TableCell>{produto.tipo}</TableCell>
-                  <TableCell>{produto.precoVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
-                  <TableCell>{produto.estoque}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="font-mono text-gray-800">{produto.codigo}</TableCell>
+                  <TableCell className="font-medium text-gray-800">{produto.nome}</TableCell>
+                  <TableCell className='text-gray-800'>{produto.tipo}</TableCell>
+                  <TableCell className='text-gray-800'>{produto.precoVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                  <TableCell className='text-gray-800'>{produto.estoque}</TableCell>
+                  <TableCell className="text-right text-blue-500">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
