@@ -122,52 +122,61 @@ function HomePage() {
         </Button>
       </header>
 
-      <main>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <StatCard
-            title="Vendas do Dia"
-            value={formatCurrency(stats?.totalVendasDia)}
-            icon={<BarChart className="text-blue-500" />}
-          />
-          <StatCard
-            title="Vendas do Mês"
-            value={formatCurrency(stats?.totalVendasMes)}
-            icon={<Calendar className="text-green-500" />}
-          />
-          <StatCard
-            title="Boletos Vencidos"
-            value={stats?.boletosVencidos || 0}
-            icon={<AlertTriangle className="text-red-500" />}
-          />
+      <main className="flex itens-center justify-center gap-5">
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5">
+            <StatCard
+              title="Vendas do Dia"
+              value={formatCurrency(stats?.totalVendasDia)}
+              icon={<BarChart className="text-blue-500" />}
+            />
+            <StatCard
+              title="Vendas do Mês"
+              value={formatCurrency(stats?.totalVendasMes)}
+              icon={<Calendar className="text-green-500" />}
+            />
+            <StatCard
+              title="Boletos Vencidos"
+              value={stats?.boletosVencidos || 0}
+              icon={<AlertTriangle className="text-red-500" />}
+              content={
+                <button
+                  onClick={() => router.push("/boletos")}
+                  className="cursor-pointer text-xs text-blue-500 hover:bg-blue-300 border border-blue-500 p-2 rounded-sm">Ver Boletos</button>
+              }
+            />
+          </div>
 
-          <StatCard
-            title="Aniversariantes do Mês"
-            value={stats?.aniversariantesMes.length || 0}
-            icon={<Cake className="text-pink-500" />}
-            content={
-              // Documentação da Correção:
-              // - As classes 'text-white' e 'text-blue-300' foram removidas.
-              // - Usamos 'text-muted-foreground' para o texto da lista e 'text-foreground' para o dia,
-              //   garantindo que as cores venham do nosso tema global e tenham bom contraste.
-              <ul className="space-y-1 text-xs mt-2 max-h-24 overflow-y-auto">
-                {stats?.aniversariantesMes &&
-                stats.aniversariantesMes.length > 0 ? (
-                  stats.aniversariantesMes.map((aniversariante, index) => (
-                    <li key={index} className="truncate text-muted-foreground">
-                      <span className="font-semibold text-foreground">
-                        Dia {aniversariante.dia}
-                      </span>{" "}
-                      - {aniversariante.nome}
+          <div className="flex flex-col">
+            <StatCard
+              title="Aniversariantes do Mês"
+              value={stats?.aniversariantesMes.length || 0}
+              icon={<Cake className="text-pink-500" />}
+              content={
+                // Documentação da Correção:
+                // - As classes 'text-white' e 'text-blue-300' foram removidas.
+                // - Usamos 'text-muted-foreground' para o texto da lista e 'text-foreground' para o dia,
+                //   garantindo que as cores venham do nosso tema global e tenham bom contraste.
+                <ul className="space-y-1 text-xs mt-2 max-h-24 overflow-y-auto">
+                  {stats?.aniversariantesMes &&
+                  stats.aniversariantesMes.length > 0 ? (
+                    stats.aniversariantesMes.map((aniversariante, index) => (
+                      <li key={index} className="truncate text-muted-foreground">
+                        <span className="font-semibold text-foreground">
+                          Dia {aniversariante.dia}
+                        </span>{" "}
+                        - {aniversariante.nome}
+                      </li>
+                    ))
+                  ) : (
+                    <li className="text-muted-foreground">
+                      Nenhum aniversariante este mês.
                     </li>
-                  ))
-                ) : (
-                  <li className="text-muted-foreground">
-                    Nenhum aniversariante este mês.
-                  </li>
-                )}
-              </ul>
-            }
-          />
+                  )}
+                </ul>
+              }
+            />
+          </div>
         </div>
 
         {insight && (
@@ -175,10 +184,10 @@ function HomePage() {
           // - Removidas todas as classes de cor hardcoded do Card, CardTitle, CardDescription e do parágrafo.
           // - Os componentes agora herdam as cores corretas ('card-foreground', 'muted-foreground', etc.) do nosso tema,
           //   tornando todo o texto perfeitamente visível.
-          <div className="mt-8">
+          <div className="w-md">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-5">
                   <Sparkles className="text-purple-500" />
                   {insight.titulo}
                 </CardTitle>

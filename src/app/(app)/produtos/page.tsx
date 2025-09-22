@@ -16,6 +16,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MoreHorizontal } from "lucide-react";
+import {PlusCircle } from 'lucide-react';
+
 
 type Produto = TProdutoSchema & { _id: string };
 
@@ -105,8 +107,10 @@ function ProdutosPage() {
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
         <h1 className="text-3xl text-blue-300">Produtos</h1>
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
-          <Input placeholder="Buscar por nome ou código..." className="w-full md:w-80 placeholder:text-white/50" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          <Button onClick={handleCreate}>Cadastrar Novo Produto</Button>
+          <Input placeholder="Buscar por nome ou código..." className="w-full md:w-80 placeholder:text-gray-800/50" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          <Button onClick={handleCreate} className='text-gray-800/50'>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Cadastrar Novo Produto</Button>
         </div>
       </header>
       
@@ -131,11 +135,11 @@ function ProdutosPage() {
               {isLoading ? (<TableRow><TableCell colSpan={6}>Carregando...</TableCell></TableRow>) : 
               produtos?.map((produto) => (
                 <TableRow key={produto._id}>
-                  <TableCell className="font-mono text-gray-800">{produto.codigo}</TableCell>
-                  <TableCell className="font-medium text-gray-800">{produto.nome}</TableCell>
-                  <TableCell className='text-gray-800'>{produto.tipo}</TableCell>
-                  <TableCell className='text-gray-800'>{produto.precoVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
-                  <TableCell className='text-gray-800'>{produto.estoque}</TableCell>
+                  <TableCell className="font-mono text-gray-800/70">{produto.codigo}</TableCell>
+                  <TableCell className="font-medium text-gray-800/70">{produto.nome}</TableCell>
+                  <TableCell className='text-gray-800/70'>{produto.tipo}</TableCell>
+                  <TableCell className='text-gray-800/70'>{produto.precoVenda.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                  <TableCell className='text-gray-800/70'>{produto.estoque}</TableCell>
                   <TableCell className="text-right text-blue-500">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild><Button variant="ghost" className="h-8 w-8 p-0"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>

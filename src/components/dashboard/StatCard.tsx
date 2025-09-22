@@ -16,7 +16,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, content }) => {
     // - O ícone agora fica no cabeçalho, à direita do título, para uma aparência mais integrada.
     // - O valor principal (`value`) tem grande destaque.
     // - O conteúdo adicional (`content`) é renderizado abaixo, se existir.
-    <Card>
+    <Card className='w-sm'>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react'; // Adicionado o useState
 import withAuth from '@/components/auth/withAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
@@ -23,6 +24,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import AddClientForm from '@/components/clientes/AddClientForm';
 
 // Documentação da Correção:
 // - Removido o "[key: string]: any" e definimos uma estrutura de dados mais completa
@@ -44,6 +53,8 @@ type Cliente = {
 };
 
 function ClientesPage() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedCliente, setSelectedCliente] = useState<Cliente | null>(null);
   const queryClient = useQueryClient();
   
   const { data: clientes, isLoading, isError } = useQuery<Cliente[]>({
@@ -64,11 +75,13 @@ function ClientesPage() {
 
   // Funções simplificadas, pois o Dialog foi temporariamente removido
   const handleAddNew = () => {
-    alert("Função 'Adicionar Novo Cliente' a ser implementada.");
+    setSelectedCliente(null);
+    setIsDialogOpen(true);
   };
 
   const handleEdit = (cliente: Cliente) => {
-    alert(`Função 'Editar Cliente' a ser implementada para: ${cliente.fullName}`);
+    setSelectedCliente(cliente);
+    setIsDialogOpen(true);
   };
 
   const handleDelete = (id: string) => {
@@ -89,7 +102,7 @@ function ClientesPage() {
           <h1 className="text-3xl font-bold tracking-tight">Gestão de Clientes</h1>
           <p className="text-muted-foreground">Adicione, edite e visualize os seus clientes.</p>
         </div>
-        <Button onClick={handleAddNew} className="mt-4 sm:mt-0">
+        <Button onClick={handleAddNew} className="mt-4 sm:mt-0 text-gray-800/50">
           <PlusCircle className="mr-2 h-4 w-4" />
           Adicionar Novo Cliente
         </Button>
@@ -127,9 +140,9 @@ function ClientesPage() {
                 ) : clientes && clientes.length > 0 ? (
                   clientes.map((cliente) => (
                     <TableRow key={cliente._id}>
-                      <TableCell className="font-medium text-gray-800">{cliente.fullName}</TableCell>
-                      <TableCell className='text-gray-800'>{cliente.cpf}</TableCell>
-                      <TableCell className='text-gray-800'>{cliente.phone}</TableCell>
+                      <TableCell className="font-medium text-gray-800/70">{cliente.fullName}</TableCell>
+                      <TableCell className='text-gray-800/70'>{cliente.cpf}</TableCell>
+                      <TableCell className='text-gray-800/70'>{cliente.phone}</TableCell>
                       <TableCell className='text-blue-500'>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -158,6 +171,17 @@ function ClientesPage() {
           </CardContent>
         </Card>
       </main>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedCliente ? 'Editar Cliente' : 'Adicionar Novo Cliente'}</DialogTitle>
+          </DialogHeader>
+          <AddClientForm 
+            initialData={selectedCliente} 
+            onSuccess={() => setIsDialogOpen(false)} 
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

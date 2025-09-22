@@ -9,6 +9,8 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import {PlusCircle } from 'lucide-react';
+
 
 interface Boleto {
   _id: string;
@@ -48,17 +50,19 @@ function BoletosPage() {
     <div className="p-4 md:p-8">
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
         <h1 className="text-3xl text-blue-300">Boletos</h1>
-        <Button asChild className="w-full md:w-auto text-gray-800">
-          <Link href="/boletos/novo">Gerar Parcelamento</Link>
+        <Button asChild className="w-full md:w-auto text-gray-800/50">
+          <Link href="/boletos/novo">
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Gerar Parcelamento</Link>
         </Button>
       </header>
       
       <Tabs value={filtro} onValueChange={setFiltro} className="w-full">
         <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:grid-cols-4 bg-blue-950/20">
-          <TabsTrigger className='text-gray-800' value="Todos">Todos</TabsTrigger>
-          <TabsTrigger className='text-gray-800' value="Abertos">Abertos</TabsTrigger>
-          <TabsTrigger className='text-gray-800' value="Pagos">Pagos</TabsTrigger>
-          <TabsTrigger className='text-gray-800' value="Atrasados">Atrasados</TabsTrigger>
+          <TabsTrigger className='text-gray-800/50' value="Todos">Todos</TabsTrigger>
+          <TabsTrigger className='text-gray-800/50' value="Abertos">Abertos</TabsTrigger>
+          <TabsTrigger className='text-gray-800/50' value="Pagos">Pagos</TabsTrigger>
+          <TabsTrigger className='text-gray-800/50' value="Atrasados">Atrasados</TabsTrigger>
         </TabsList>
 
         <main className="mt-6 space-y-6">
@@ -71,8 +75,8 @@ function BoletosPage() {
                 <CardHeader>
                   <CardTitle className='text-blue-300'>{meses[grupo._id.mes - 1]} de {grupo._id.ano}</CardTitle>
                   <CardDescription className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                    <span className='text-gray-800'>Total a Receber: {grupo.valorTotalMes.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                    <span className='text-gray-800'>{grupo.pagosNoMes}/{totalBoletos} pagos</span>
+                    <span className='text-gray-800/50'>Total a Receber: {grupo.valorTotalMes.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                    <span className='text-gray-800/50'>{grupo.pagosNoMes}/{totalBoletos} pagos</span>
                   </CardDescription>
                   <Progress value={progresso} className="w-full mt-2" />
                 </CardHeader>
@@ -87,8 +91,8 @@ function BoletosPage() {
                         // Aplicamos um fundo sutil e borda aos itens da lista para melhor contraste
                         <div key={boleto._id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-3 rounded-md border bg-background/30 border-border">
                           <div className="flex flex-col text-center sm:text-left">
-                            <span className="font-semibold text-gray-800">{boleto.clienteInfo.fullName}</span>
-                            <span className="text-sm text-gray-800">{boleto.description}</span>
+                            <span className="font-semibold text-gray-800/70">{boleto.clienteInfo.fullName}</span>
+                            <span className="text-sm text-gray-800/70">{boleto.description}</span>
                           </div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-center sm:text-right">
                             <div className="text-sm text-gray-800">Venc.: {new Date(boleto.dueDate).toLocaleDateString('pt-BR', {timeZone: 'UTC'})}</div>
@@ -99,7 +103,7 @@ function BoletosPage() {
                             </div>
                             <div>
                               <Button
-                              className='text-gray-800'
+                              className='text-gray-800/50'
                                 size="sm"
                                 disabled={boleto.status === 'pago' || isPending}
                                 onClick={() => marcarComoPago(boleto._id)}

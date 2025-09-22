@@ -6,6 +6,8 @@ import api from '@/services/api';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {PlusCircle } from 'lucide-react';
+
 
 interface Venda {
   _id: string;
@@ -25,8 +27,10 @@ function VendasPage() {
     <div className="p-4 md:p-8">
       <header className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-10">
         <h1 className="text-3xl text-blue-300">Histórico de Vendas</h1>
-        <Button asChild className="w-full md:w-auto text-gray-800">
-          <Link href="/vendas/nova">Registrar Nova Venda</Link>
+        <Button asChild className="w-full md:w-auto text-gray-800/50">
+          <Link href="/vendas/nova">
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Registrar Nova Venda</Link>
         </Button>
       </header>
       {/* --- CORREÇÃO AQUI --- */}
@@ -45,10 +49,10 @@ function VendasPage() {
               {isLoading ? (<TableRow><TableCell colSpan={4}>Carregando...</TableCell></TableRow>) : 
               vendas?.map((venda) => (
                 <TableRow key={venda._id}>
-                  <TableCell className="text-gray-800">{venda.cliente?.fullName || 'Cliente não encontrado'}</TableCell>
-                  <TableCell className="text-gray-800">{venda.vendedor?.nome || 'Vendedor não encontrado'}</TableCell>
-                  <TableCell className="text-gray-800">{new Date(venda.dataVenda).toLocaleDateString('pt-BR')}</TableCell>
-                  <TableCell className="text-gray-800">{venda.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                  <TableCell className="text-gray-800/70">{venda.cliente?.fullName || 'Cliente não encontrado'}</TableCell>
+                  <TableCell className="text-gray-800/70">{venda.vendedor?.nome || 'Vendedor não encontrado'}</TableCell>
+                  <TableCell className="text-gray-800/70">{new Date(venda.dataVenda).toLocaleDateString('pt-BR')}</TableCell>
+                  <TableCell className="text-gray-800/70">{venda.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
