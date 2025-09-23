@@ -1,6 +1,8 @@
+// Caminho: ERP-FRONT-main/src/app/(app)/layout.tsx
+
 'use client';
 
-import Link from 'next/link'; // LINHA ADICIONADA PARA CORREÇÃO
+import Link from 'next/link';
 import Sidebar from "@/components/layout/Sidebar";
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -24,7 +26,8 @@ export default function AppLayout({
       <div className="flex flex-col lg:pl-72">
         <header className="flex h-16 items-center justify-between gap-4 border-b bg-sidebar px-6 lg:hidden sticky top-0 z-30">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/images/logo-mind.png" alt="Logo" width={32} height={32} />
+            {/* Adicionada a propriedade "priority" para otimizar o carregamento da imagem */}
+            <Image src="/images/logo-mind.png" alt="Logo" width={32} height={32} priority />
             <span className="font-bold">Mind ERP</span>
           </Link>
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>

@@ -1,6 +1,8 @@
+// Caminho: ERP-FRONT-main/src/app/(app)/clientes/page.tsx
+
 'use client';
 
-import { useState } from 'react'; // Adicionado o useState
+import { useState } from 'react';
 import withAuth from '@/components/auth/withAuth';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
@@ -29,20 +31,17 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogDescription, // Importar o DialogDescription
 } from "@/components/ui/dialog";
 import AddClientForm from '@/components/clientes/AddClientForm';
 
-// Documentação da Correção:
-// - Removido o "[key: string]: any" e definimos uma estrutura de dados mais completa
-//   para o cliente, o que resolve o erro de build do ESLint.
 type Cliente = {
   _id: string;
   fullName: string;
   cpf: string;
   phone: string;
-  dataNascimento: string;
-  endereco: {
+  birthDate: string;
+  address: {
     rua?: string;
     numero?: string;
     bairro?: string;
@@ -50,6 +49,8 @@ type Cliente = {
     estado?: string;
     cep?: string;
   };
+  // Incluindo outros campos para garantir a tipagem completa
+  [key: string]: any;
 };
 
 function ClientesPage() {
@@ -73,7 +74,6 @@ function ClientesPage() {
     },
   });
 
-  // Funções simplificadas, pois o Dialog foi temporariamente removido
   const handleAddNew = () => {
     setSelectedCliente(null);
     setIsDialogOpen(true);
@@ -111,7 +111,7 @@ function ClientesPage() {
       <main>
         <Card>
           <CardHeader>
-            <CardTitle className='text-gray-800/50'>Lista de Clientes</CardTitle>
+            <CardTitle>Lista de Clientes</CardTitle>
             <CardDescription>
               Acompanhe e gira todos os seus clientes num só lugar.
             </CardDescription>
@@ -175,6 +175,10 @@ function ClientesPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{selectedCliente ? 'Editar Cliente' : 'Adicionar Novo Cliente'}</DialogTitle>
+            {/* Adicionada a descrição para acessibilidade */}
+            <DialogDescription>
+              Preencha ou edite as informações do cliente abaixo.
+            </DialogDescription>
           </DialogHeader>
           <AddClientForm 
             initialData={selectedCliente} 
