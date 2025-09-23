@@ -105,10 +105,10 @@ function ClientesPage() {
       <Toaster richColors position="top-right" />
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestão de Clientes</h1>
+          <h1 className="text-3xl text-blue-300">Gestão de Clientes</h1>
           <p className="text-muted-foreground">Adicione, edite e visualize os seus clientes.</p>
         </div>
-        <Button onClick={handleAddNew} className="mt-4 sm:mt-0 text-gray-800/50">
+        <Button onClick={handleAddNew} className="mt-4 sm:mt-0 text-gray-800/50 cursor-pointer">
           <PlusCircle className="mr-2 h-4 w-4" />
           Adicionar Novo Cliente
         </Button>
@@ -117,7 +117,7 @@ function ClientesPage() {
       <main>
         <Card>
           <CardHeader>
-            <CardTitle>Lista de Clientes</CardTitle>
+            <CardTitle className="text-gray-800/50">Lista de Clientes</CardTitle>
             <CardDescription>
               Acompanhe e gira todos os seus clientes num só lugar.
             </CardDescription>
@@ -153,7 +153,7 @@ function ClientesPage() {
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button aria-haspopup="true" size="icon" variant="ghost">
-                              <MoreHorizontal className="h-4 w-4" />
+                              <MoreHorizontal className="h-4 w-4 cursor-pointer" />
                               <span className="sr-only">Menu</span>
                             </Button>
                           </DropdownMenuTrigger>

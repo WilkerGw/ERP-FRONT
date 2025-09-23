@@ -102,7 +102,7 @@ export default function TransacaoForm({ onSuccess }: TransacaoFormProps) {
         />
         
         <div className="flex justify-end">
-            <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+            <Button type="submit" disabled={isPending} className="w-full sm:w-auto text-gray-800/50">
                 {isPending ? 'A registar...' : 'Registar Transação'}
             </Button>
         </div>

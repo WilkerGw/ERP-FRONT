@@ -103,10 +103,10 @@ function HomePage() {
     <div className="p-6 md:p-8 lg:p-10 min-h-screen">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl text-blue-300">Dashboard</h1>
           <p className="text-muted-foreground">
             Bem-vindo(a),{" "}
-            <span className="font-semibold text-foreground">
+            <span className=" text-blue-300">
               {user?.nome || "Usuário"}
             </span>
             ! Veja um resumo do seu negócio.

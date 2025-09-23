@@ -106,7 +106,7 @@ function AgendamentosPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <Button onClick={handleCreate} className="text-gray-800/50">
+          <Button onClick={handleCreate} className="text-gray-800/50 cursor-pointer">
             <PlusCircle className="mr-2 h-4 w-4" />
             Novo Agendamento
           </Button>
@@ -170,10 +170,10 @@ function AgendamentosPage() {
                         {ag.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right text-blue-500">
+                    <TableCell className="text-right text-blue-500 ">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>

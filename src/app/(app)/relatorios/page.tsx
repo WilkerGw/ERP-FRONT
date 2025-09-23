@@ -47,7 +47,7 @@ function RelatoriosPage() {
   return (
     <div className="p-4 md:p-8">
       <header className="mb-10">
-        <h1 className="text-3xl font-bold text-blue-300">Relatórios Gerenciais</h1>
+        <h1 className="text-3xl text-blue-300">Relatórios Gerenciais</h1>
         <p className="text-gray-800/50 mt-1">Análise de performance da sua ótica.</p>
       </header>
       <main className="grid grid-cols-1 lg:grid-cols-2 gap-6">
