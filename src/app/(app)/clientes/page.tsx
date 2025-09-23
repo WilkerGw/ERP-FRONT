@@ -111,7 +111,7 @@ function ClientesPage() {
       <main>
         <Card>
           <CardHeader>
-            <CardTitle>Lista de Clientes</CardTitle>
+            <CardTitle className='text-gray-800/50'>Lista de Clientes</CardTitle>
             <CardDescription>
               Acompanhe e gira todos os seus clientes num só lugar.
             </CardDescription>

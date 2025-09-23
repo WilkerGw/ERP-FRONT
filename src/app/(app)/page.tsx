@@ -1,3 +1,5 @@
+// Caminho: ERP-FRONT-main/src/app/(app)/page.tsx
+
 "use client";
 
 import withAuth from "@/components/auth/withAuth";
@@ -21,6 +23,7 @@ import {
   AlertTriangle,
   Sparkles,
   LogOut,
+  Landmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -44,6 +47,10 @@ interface DashboardStats {
   }[];
 }
 
+interface CaixaData {
+    saldo: number;
+}
+
 function HomePage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
@@ -52,7 +59,6 @@ function HomePage() {
   const {
     data: stats,
     isLoading: isLoadingStats,
-    isError: isErrorStats,
   } = useQuery<DashboardStats>({
     queryKey: ["dashboardStats"],
     queryFn: async () => api.get("/dashboard").then((res) => res.data),
@@ -61,10 +67,14 @@ function HomePage() {
   const {
     data: insight,
     isLoading: isLoadingInsight,
-    isError: isErrorInsight,
   } = useQuery<Insight>({
     queryKey: ["latestInsight"],
     queryFn: async () => api.get("/insights/latest").then((res) => res.data),
+  });
+  
+  const { data: caixaData, isLoading: isLoadingCaixa } = useQuery<CaixaData>({
+    queryKey: ['caixa'],
+    queryFn: () => api.get('/caixa').then((res) => res.data),
   });
 
   const handleLogout = () => {
@@ -72,24 +82,7 @@ function HomePage() {
     router.push("/login");
   };
 
-  const isLoading = isLoadingStats || isLoadingInsight;
-  const isError = isErrorStats || isErrorInsight;
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="loader"></div>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="p-8 text-destructive">
-        Erro ao carregar os dados. Tente novamente mais tarde.
-      </div>
-    );
-  }
+  const isLoading = isLoadingStats || isLoadingInsight || isLoadingCaixa;
 
   const formatCurrency = (value: number | undefined) => {
     if (typeof value !== "number") return "R$ 0,00";
@@ -98,6 +91,14 @@ function HomePage() {
       currency: "BRL",
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-8 lg:p-10 min-h-screen">
@@ -109,7 +110,7 @@ function HomePage() {
             <span className="font-semibold text-foreground">
               {user?.nome || "Usuário"}
             </span>
-            ! Veja um resumo do seu dia.
+            ! Veja um resumo do seu negócio.
           </p>
         </div>
         <Button
@@ -121,73 +122,45 @@ function HomePage() {
           Sair
         </Button>
       </header>
-
-      <main className="flex itens-center justify-center gap-5">
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-5">
-            <StatCard
-              title="Vendas do Dia"
-              value={formatCurrency(stats?.totalVendasDia)}
-              icon={<BarChart className="text-blue-500" />}
-            />
-            <StatCard
-              title="Vendas do Mês"
-              value={formatCurrency(stats?.totalVendasMes)}
-              icon={<Calendar className="text-green-500" />}
-            />
-            <StatCard
-              title="Boletos Vencidos"
-              value={stats?.boletosVencidos || 0}
-              icon={<AlertTriangle className="text-red-500" />}
-              content={
-                <button
-                  onClick={() => router.push("/boletos")}
-                  className="cursor-pointer text-xs text-blue-500 hover:bg-blue-300 border border-blue-500 p-2 rounded-sm">Ver Boletos</button>
-              }
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <StatCard
-              title="Aniversariantes do Mês"
-              value={stats?.aniversariantesMes.length || 0}
-              icon={<Cake className="text-pink-500" />}
-              content={
-                // Documentação da Correção:
-                // - As classes 'text-white' e 'text-blue-300' foram removidas.
-                // - Usamos 'text-muted-foreground' para o texto da lista e 'text-foreground' para o dia,
-                //   garantindo que as cores venham do nosso tema global e tenham bom contraste.
-                <ul className="space-y-1 text-xs mt-2 max-h-24 overflow-y-auto">
-                  {stats?.aniversariantesMes &&
-                  stats.aniversariantesMes.length > 0 ? (
-                    stats.aniversariantesMes.map((aniversariante, index) => (
-                      <li key={index} className="truncate text-muted-foreground">
-                        <span className="font-semibold text-foreground">
-                          Dia {aniversariante.dia}
-                        </span>{" "}
-                        - {aniversariante.nome}
-                      </li>
-                    ))
-                  ) : (
-                    <li className="text-muted-foreground">
-                      Nenhum aniversariante este mês.
-                    </li>
-                  )}
-                </ul>
-              }
-            />
-          </div>
-        </div>
+      
+      {/* O alinhamento dos itens do grid foi alterado para 'start' */}
+      <main className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:items-start">
+        
+        <StatCard
+            title="Saldo em Caixa"
+            value={formatCurrency(caixaData?.saldo)}
+            icon={<Landmark className="text-green-500" />}
+        />
+        <StatCard
+          title="Vendas do Dia"
+          value={formatCurrency(stats?.totalVendasDia)}
+          icon={<BarChart className="text-blue-500" />}
+        />
+        <StatCard
+          title="Vendas do Mês"
+          value={formatCurrency(stats?.totalVendasMes)}
+          icon={<Calendar className="text-indigo-500" />}
+        />
+        <StatCard
+          title="Boletos Vencidos"
+          value={stats?.boletosVencidos || 0}
+          icon={<AlertTriangle className="text-red-500" />}
+          content={
+            <button
+              onClick={() => router.push("/boletos")}
+              className="text-xs text-blue-500 hover:underline mt-1"
+            >
+              Ver boletos
+            </button>
+          }
+        />
 
         {insight && (
-          // Documentação da Correção:
-          // - Removidas todas as classes de cor hardcoded do Card, CardTitle, CardDescription e do parágrafo.
-          // - Os componentes agora herdam as cores corretas ('card-foreground', 'muted-foreground', etc.) do nosso tema,
-          //   tornando todo o texto perfeitamente visível.
-          <div className="w-md">
-            <Card>
+          // --- ALTERAÇÃO PRINCIPAL AQUI ---
+          <div className="sm:col-span-2 lg:col-span-3 h-96 flex flex-col">
+            <Card className='flex-1 flex flex-col min-h-0'>
               <CardHeader>
-                <CardTitle className="flex items-center gap-5">
+                <CardTitle className="flex items-center gap-2">
                   <Sparkles className="text-purple-500" />
                   {insight.titulo}
                 </CardTitle>
@@ -196,7 +169,7 @@ function HomePage() {
                   {new Date(insight.dataGeracao).toLocaleString("pt-BR")}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="overflow-y-auto pr-4">
                 <p className="text-sm text-foreground/90 whitespace-pre-wrap">
                   {insight.conteudo}
                 </p>
@@ -204,6 +177,34 @@ function HomePage() {
             </Card>
           </div>
         )}
+
+        <div className="sm:col-span-2 lg:col-span-1">
+            <StatCard
+            title="Aniversariantes do Mês"
+            value={stats?.aniversariantesMes.length || 0}
+            icon={<Cake className="text-pink-500" />}
+            content={
+                <ul className="space-y-1 text-xs mt-2 max-h-48 overflow-y-auto pr-2">
+                {stats?.aniversariantesMes &&
+                stats.aniversariantesMes.length > 0 ? (
+                    stats.aniversariantesMes.map((aniversariante, index) => (
+                    <li key={index} className="truncate text-muted-foreground">
+                        <span className="font-semibold text-foreground">
+                        Dia {aniversariante.dia}
+                        </span>{" "}
+                        - {aniversariante.nome}
+                    </li>
+                    ))
+                ) : (
+                    <li className="text-muted-foreground">
+                    Nenhum aniversariante este mês.
+                    </li>
+                )}
+                </ul>
+            }
+            />
+        </div>
+        
       </main>
     </div>
   );

@@ -98,11 +98,11 @@ function CaixaPage() {
                 <TableBody>
                   {isLoading ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center h-24">A carregar histórico...</TableCell>
+                      <TableCell colSpan={4} className="text-center h-24 text-gray-800/50">A carregar histórico...</TableCell>
                     </TableRow>
                   ) : isError ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center h-24 text-destructive">Erro ao carregar os dados.</TableCell>
+                      <TableCell colSpan={4} className="text-center h-24 text-destructive text-gray-800/50">Erro ao carregar os dados.</TableCell>
                     </TableRow>
                   ) : data?.transacoes && data.transacoes.length > 0 ? (
                     data.transacoes.map((transacao) => (
@@ -123,7 +123,7 @@ function CaixaPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center h-24">Nenhuma transação encontrada.</TableCell>
+                      <TableCell colSpan={4} className="text-center h-24 text-gray-800/50">Nenhuma transação encontrada.</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
