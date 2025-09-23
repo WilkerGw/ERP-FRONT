@@ -31,26 +31,30 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription, // Importar o DialogDescription
+  DialogDescription,
 } from "@/components/ui/dialog";
 import AddClientForm from '@/components/clientes/AddClientForm';
 
+// --- CORREÇÃO AQUI ---
+// Definimos a interface completa para o Cliente, removendo o "any".
 type Cliente = {
   _id: string;
   fullName: string;
   cpf: string;
   phone: string;
   birthDate: string;
-  address: {
-    rua?: string;
-    numero?: string;
-    bairro?: string;
-    cidade?: string;
-    estado?: string;
-    cep?: string;
-  };
-  // Incluindo outros campos para garantir a tipagem completa
-  [key: string]: any;
+  gender?: string;
+  address?: string;
+  cep?: string;
+  notes?: string;
+  esfericoDireito?: string;
+  cilindricoDireito?: string;
+  eixoDireito?: string;
+  esfericoEsquerdo?: string;
+  cilindricoEsquerdo?: string;
+  eixoEsquerdo?: string;
+  adicao?: string;
+  vencimentoReceita?: string;
 };
 
 function ClientesPage() {
@@ -70,7 +74,9 @@ function ClientesPage() {
       queryClient.invalidateQueries({ queryKey: ['clientes'] });
     },
     onError: (error) => {
-      toast.error(`Erro ao apagar cliente: ${error.message}`);
+      // O 'error' aqui também é do tipo 'unknown', vamos tratá-lo corretamente.
+      const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro.';
+      toast.error(`Erro ao apagar cliente: ${errorMessage}`);
     },
   });
 
@@ -175,7 +181,6 @@ function ClientesPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{selectedCliente ? 'Editar Cliente' : 'Adicionar Novo Cliente'}</DialogTitle>
-            {/* Adicionada a descrição para acessibilidade */}
             <DialogDescription>
               Preencha ou edite as informações do cliente abaixo.
             </DialogDescription>

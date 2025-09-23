@@ -19,8 +19,7 @@ import {
   BarChart,
   Calendar,
   Cake,
-  Users,
-  AlertTriangle,
+  AlertTriangle, // Ícone 'Users' removido
   Sparkles,
   LogOut,
   Landmark,
@@ -123,7 +122,6 @@ function HomePage() {
         </Button>
       </header>
       
-      {/* O alinhamento dos itens do grid foi alterado para 'start' */}
       <main className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:items-start">
         
         <StatCard
@@ -156,7 +154,6 @@ function HomePage() {
         />
 
         {insight && (
-          // --- ALTERAÇÃO PRINCIPAL AQUI ---
           <div className="sm:col-span-2 lg:col-span-3 h-96 flex flex-col">
             <Card className='flex-1 flex flex-col min-h-0'>
               <CardHeader>
@@ -169,7 +166,7 @@ function HomePage() {
                   {new Date(insight.dataGeracao).toLocaleString("pt-BR")}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="overflow-y-auto pr-4">
+              <CardContent className="flex-1 min-h-0 overflow-y-auto pr-4">
                 <p className="text-sm text-foreground/90 whitespace-pre-wrap">
                   {insight.conteudo}
                 </p>
