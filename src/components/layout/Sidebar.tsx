@@ -1,3 +1,5 @@
+// Caminho: ERP-FRONT-main/src/components/layout/Sidebar.tsx
+
 "use client";
 
 import Link from "next/link";
@@ -10,9 +12,11 @@ import {
   FileText,
   Calendar,
   BarChart3,
+  Landmark, // 1. Importar o novo ícone
 } from "lucide-react";
 import Image from "next/image";
 
+// 2. Adicionar o novo item de navegação para o Caixa
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Relatórios", href: "/relatorios", icon: BarChart3 },
@@ -21,6 +25,7 @@ const navItems = [
   { name: "Vendas", href: "/vendas", icon: ShoppingCart },
   { name: "Boletos", href: "/boletos", icon: FileText },
   { name: "Produtos", href: "/produtos", icon: Package },
+  { name: "Caixa", href: "/caixa", icon: Landmark }, // NOVO ITEM AQUI
 ];
 
 interface SidebarProps {
@@ -31,11 +36,7 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    // Documentação da Sidebar:
-    // - bg-sidebar: Usa a nova cor de fundo definida no globals.css (branco).
-    // - border-r: Adiciona uma borda à direita para separar do conteúdo.
-    // - O logo é centralizado com um espaçamento melhor.
-    // - Os links de navegação têm um hover mais sutil e um estado ativo (página atual) bem definido com cor primária.
+    // O resto do componente permanece o mesmo
     <aside className="w-full h-full flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       <div className="p-4 border-b border-sidebar-border flex justify-center">
         <Link href="/" className="flex items-center gap-2">
@@ -58,8 +59,8 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
                 className={`flex items-center gap-3 p-2 rounded-lg transition-all text-sm font-medium
                   ${
                     pathname === item.href
-                      ? "bg-primary/10 text-primary" // Estilo do link ativo
-                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground" // Estilo padrão e hover
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                   }`}
               >
                 <item.icon className="h-5 w-5" />
