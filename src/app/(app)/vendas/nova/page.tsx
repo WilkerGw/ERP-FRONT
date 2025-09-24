@@ -15,6 +15,7 @@ import { Search, Trash2 } from 'lucide-react';
 import api from '@/services/api';
 import { vendaFormValidator, TVendaFormValidator } from '@/lib/validators/vendaValidator';
 import { formatCurrency } from '@/lib/formatters';
+import { AxiosError } from 'axios'; // Importamos o tipo de erro
 
 interface ICliente {
   _id: string;
@@ -115,7 +116,7 @@ const NovaVendaPage = () => {
   const valorRestante = valorTotal - valorEntrada;
   const porcentagemRestante = 100 - (porcentagemEntrada || 0);
 
-
+  // --- FUNÇÃO onSubmit ATUALIZADA ---
   const onSubmit = async (data: TVendaFormValidator) => {
     try {
       const payload = {
@@ -139,9 +140,10 @@ const NovaVendaPage = () => {
       form.reset();
       setClienteSelecionado(null);
 
-    } catch (error: any) {
+    } catch (error) { // Removemos o ': any'
       console.error("Erro ao criar venda:", error);
-      if (error.response && error.response.data && error.response.data.message) {
+      // Verificamos se o erro é uma instância de AxiosError
+      if (error instanceof AxiosError && error.response?.data?.message) {
         alert(`Falha ao criar a venda: ${error.response.data.message}`);
       } else {
         alert('Falha ao criar a venda. Verifique os dados e tente novamente.');
