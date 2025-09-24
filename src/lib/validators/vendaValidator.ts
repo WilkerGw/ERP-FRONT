@@ -2,41 +2,26 @@
 
 import { z } from 'zod';
 
-// Sub-esquema para cada item da venda
-const ItemVendaSchema = z.object({
-  produto: z.object({
-    _id: z.string(),
-    nome: z.string(),
-    codigo: z.string(),
-    precoVenda: z.number(),
-  }),
-  quantidade: z.coerce.number().min(1, "A quantidade deve ser pelo menos 1"),
-  precoUnitario: z.coerce.number().min(0, "O preço deve ser positivo"),
+// Validador para cada produto na venda
+export const produtoVendaValidator = z.object({
+  produtoId: z.string().nonempty("O produto é obrigatório."),
+  nome: z.string(), // Apenas para exibição no formulário
+  quantidade: z.number().min(1, "A quantidade deve ser pelo menos 1."),
+  valorUnitario: z.number().min(0, "O valor unitário não pode ser negativo."),
 });
 
-// Sub-esquema para cada método de pagamento
-const PagamentoSchema = z.object({
-  metodo: z.string().min(1, { message: "Método de pagamento é obrigatório."}),
-  valor: z.coerce.number().min(0.01, { message: "O valor do pagamento deve ser maior que zero."}),
-  parcelas: z.coerce.number().optional(),
-});
-
-// Esquema principal da Venda, agora atualizado
-export const VendaSchema = z.object({
-  cliente: z.object({
-    _id: z.string(),
-    fullName: z.string(),
-  }).nullable().refine(val => val !== null, { message: "Cliente é obrigatório." }),
+// Validador principal do formulário de venda
+export const vendaFormValidator = z.object({
+  clienteId: z.string().nonempty("O cliente é obrigatório."),
+  produtos: z.array(produtoVendaValidator).min(1, "Adicione pelo menos um produto à venda."),
   
-  itens: z.array(ItemVendaSchema).min(1, { message: "A venda deve ter pelo menos um item." }),
-  
-  // Agora é um array de pagamentos
-  pagamentos: z.array(PagamentoSchema),
-
-  // Novo campo para o valor a ser pago na entrega
-  valorPendenteEntrega: z.coerce.number().min(0, "O valor pendente não pode ser negativo.").optional(),
-
-  dataVenda: z.string().refine(d => d, { message: "Data da venda é obrigatória." }),
+  // Detalhes do Pagamento
+  porcentagemEntrada: z.number().min(0, "A porcentagem não pode ser negativa.").max(100, "A porcentagem não pode ser maior que 100."),
+  condicaoPagamento: z.enum(['À vista', 'A prazo']),
+  metodoPagamento: z.enum(['Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'PIX', 'Boleto']),
+  parcelas: z.number().min(1, "O número de parcelas deve ser pelo menos 1.").optional(),
 });
 
-export type TVendaSchema = z.infer<typeof VendaSchema>;
+// Tipagem inferida a partir do schema para uso no formulário
+export type TProdutoVendaValidator = z.infer<typeof produtoVendaValidator>;
+export type TVendaFormValidator = z.infer<typeof vendaFormValidator>;

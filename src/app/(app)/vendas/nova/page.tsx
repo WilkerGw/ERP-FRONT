@@ -1,290 +1,377 @@
-'use client';
+// Caminho: ERP-FRONT-main/src/app/(app)/vendas/nova/page.tsx
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import withAuth from "@/components/auth/withAuth";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useForm, useFieldArray, Controller, FieldErrors } from 'react-hook-form';
-import api from '@/services/api';
-import axios from 'axios';
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { VendaSchema, TVendaSchema } from '@/lib/validators/vendaValidator';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Trash2, ChevronsUpDown } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Search, Trash2 } from 'lucide-react';
+import api from '@/services/api';
+import { vendaFormValidator, TVendaFormValidator } from '@/lib/validators/vendaValidator';
+import { formatCurrency } from '@/lib/formatters';
 
-interface Cliente { _id: string; fullName: string; }
-interface Produto { _id: string; nome: string; codigo: string; precoVenda: number; }
+interface ICliente {
+  _id: string;
+  fullName: string;
+}
 
-const getTodayString = () => new Date().toISOString().split('T')[0];
+interface IProduto {
+  _id: string;
+  nome: string;
+}
 
-function NovaVendaPage() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const [clientePopoverOpen, setClientePopoverOpen] = useState(false);
-  const [produtoPopoverOpen, setProdutoPopoverOpen] = useState(false);
-  const [clienteSearch, setClienteSearch] = useState('');
-  const [produtoSearch, setProdutoSearch] = useState('');
+const NovaVendaPage = () => {
+  const [clientes, setClientes] = useState<ICliente[]>([]);
+  const [produtos, setProdutos] = useState<IProduto[]>([]);
+  const [buscaCliente, setBuscaCliente] = useState('');
+  const [buscaProduto, setBuscaProduto] = useState('');
+  const [clienteSelecionado, setClienteSelecionado] = useState<ICliente | null>(null);
 
-  const { data: clientes } = useQuery<Cliente[]>({
-    queryKey: ['clientes', clienteSearch],
-    queryFn: () => api.get(`/clientes?search=${clienteSearch}`).then(res => res.data),
-    enabled: clienteSearch.length >= 1,
-  });
-
-  const { data: produtos } = useQuery<Produto[]>({
-    queryKey: ['produtos', produtoSearch],
-    queryFn: () => api.get(`/produtos?search=${produtoSearch}`).then(res => res.data),
-    enabled: produtoSearch.length >= 1,
-  });
-
-  const form = useForm<TVendaSchema>({
-    resolver: zodResolver(VendaSchema),
+  const form = useForm<TVendaFormValidator>({
+    resolver: zodResolver(vendaFormValidator),
     defaultValues: {
-      cliente: null,
-      itens: [],
-      valorEntrada: 0,
-      pagamento: { metodo: undefined, parcelas: 1 },
-      dataVenda: getTodayString(),
+      clienteId: '',
+      produtos: [],
+      porcentagemEntrada: 0,
+      condicaoPagamento: 'À vista',
+      metodoPagamento: 'Dinheiro',
+      parcelas: 1,
     },
   });
-  
-  const { control, handleSubmit, watch, setValue, register } = form;
-  const { fields, append, remove } = useFieldArray({ control, name: "itens" });
-  const itensVenda = watch('itens');
-  const valorTotal = itensVenda.reduce((acc, item) => acc + (Number(item.precoUnitario || 0) * Number(item.quantidade || 0)), 0);
-  const metodoPagamento = watch('pagamento.metodo');
-  
-  const { mutate, isPending } = useMutation({
-    mutationFn: (data: TVendaSchema) => {
-      const finalValorTotal = data.itens.reduce((acc, item) => acc + (Number(item.precoUnitario || 0) * Number(item.quantidade || 0)), 0);
-      const cashMethods = ['Dinheiro', 'Pix', 'Débito'];
-      let finalValorEntrada = 0;
 
-      if (cashMethods.includes(data.pagamento.metodo!)) {
-        finalValorEntrada = finalValorTotal;
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "produtos",
+  });
+
+  useEffect(() => {
+    const fetchClientes = async () => {
+      if (buscaCliente.length >= 1) { 
+        try {
+          const { data } = await api.get(`/clientes?search=${buscaCliente}`);
+          setClientes(data);
+        } catch (error) {
+          console.error("Erro ao buscar clientes:", error);
+        }
       } else {
-        finalValorEntrada = Number(data.valorEntrada || 0);
+        setClientes([]);
       }
+    };
+    const debounce = setTimeout(fetchClientes, 300);
+    return () => clearTimeout(debounce);
+  }, [buscaCliente]);
 
-      const payload = {
-        cliente: data.cliente?._id,
-        itens: data.itens.map(item => ({
-          produto: item.produto._id,
-          quantidade: Number(item.quantidade),
-          precoUnitario: Number(item.precoUnitario),
-        })),
-        valorTotal: finalValorTotal,
-        valorEntrada: finalValorEntrada,
-        pagamento: {
-          metodo: data.pagamento.metodo,
-          parcelas: Number(data.pagamento.parcelas),
-        },
-        dataVenda: data.dataVenda,
-      };
-      return api.post('/vendas', payload);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendas'] });
-      alert('Venda registrada com sucesso!');
-      router.push('/vendas');
-    },
-    onError: (error: unknown) => {
-      let errorMessage = 'Erro ao registrar venda';
-      if (axios.isAxiosError(error) && error.response) {
-        errorMessage = error.response.data?.message || errorMessage;
+  useEffect(() => {
+    const fetchProdutos = async () => {
+      if (buscaProduto.length >= 1) {
+        try {
+          const { data } = await api.get(`/produtos?search=${buscaProduto}`);
+          setProdutos(data);
+        } catch (error) {
+          console.error("Erro ao buscar produtos:", error);
+        }
+      } else {
+        setProdutos([]);
       }
-      alert(errorMessage);
-    },
-  });
-  
-  const onValidSubmit = (data: TVendaSchema) => {
-    mutate(data);
+    };
+    const debounce = setTimeout(fetchProdutos, 300);
+    return () => clearTimeout(debounce);
+  }, [buscaProduto]);
+
+
+  const selecionarCliente = (cliente: ICliente) => {
+    form.setValue('clienteId', cliente._id);
+    setClienteSelecionado(cliente);
+    setBuscaCliente('');
+    setClientes([]);
   };
 
-  const onInvalidSubmit = (errors: FieldErrors<TVendaSchema>) => {
-    console.error("Validação do formulário falhou! Erros:", errors);
-    alert("Existem erros no formulário. Verifique os campos marcados em vermelho e tente novamente.");
+  const adicionarProduto = (produto: IProduto) => {
+    append({
+      produtoId: produto._id,
+      nome: produto.nome,
+      quantidade: 1,
+      valorUnitario: 0,
+    });
+    setBuscaProduto('');
+    setProdutos([]);
+  };
+
+  const produtosDaVenda = form.watch('produtos');
+  const porcentagemEntrada = form.watch('porcentagemEntrada');
+  const condicaoPagamento = form.watch('condicaoPagamento');
+
+  const valorTotal = produtosDaVenda.reduce((acc, produto) => {
+    return acc + (produto.quantidade * produto.valorUnitario);
+  }, 0);
+
+  const valorEntrada = (valorTotal * (porcentagemEntrada || 0)) / 100;
+  const valorRestante = valorTotal - valorEntrada;
+  const porcentagemRestante = 100 - (porcentagemEntrada || 0);
+
+
+  const onSubmit = async (data: TVendaFormValidator) => {
+    try {
+      const payload = {
+        cliente: data.clienteId,
+        produtos: data.produtos.map(p => ({ 
+            produto: p.produtoId, 
+            quantidade: p.quantidade, 
+            valorUnitario: p.valorUnitario 
+        })),
+        pagamento: {
+          valorEntrada,
+          valorRestante,
+          metodoPagamento: data.metodoPagamento,
+          condicaoPagamento: data.condicaoPagamento,
+          parcelas: data.condicaoPagamento === 'A prazo' ? data.parcelas : undefined
+        }
+      };
+
+      await api.post('/vendas', payload);
+      alert('Venda criada com sucesso!');
+      form.reset();
+      setClienteSelecionado(null);
+
+    } catch (error: any) {
+      console.error("Erro ao criar venda:", error);
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(`Falha ao criar a venda: ${error.response.data.message}`);
+      } else {
+        alert('Falha ao criar a venda. Verifique os dados e tente novamente.');
+      }
+    }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={handleSubmit(onValidSubmit, onInvalidSubmit)} className="p-4 md:p-8 space-y-6">
-        <h1 className="text-3xl text-blue-300">Registar Nova Venda</h1>
-        <Card>
-          <CardHeader><CardTitle>1. Dados da Venda</CardTitle></CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={control}
-              name="cliente"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cliente</FormLabel>
-                  <Popover open={clientePopoverOpen} onOpenChange={setClientePopoverOpen}>
-                    {/* --- CORREÇÃO AQUI --- */}
-                    {/* O <Button> agora é o filho direto do PopoverTrigger, sem o FormControl a envolvê-lo */}
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" role="combobox" className="w-full justify-between">
-                        {field.value ? field.value.fullName : "Selecione um cliente..."}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                      <Command>
-                        <CommandInput placeholder="Buscar cliente..." onValueChange={setClienteSearch} />
-                        <CommandList>
-                          <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
-                          <CommandGroup>
-                            {clientes?.map(c => (
-                              <CommandItem key={c._id} value={c.fullName} onSelect={() => { setValue('cliente', c, { shouldValidate: true }); setClientePopoverOpen(false); }}>
-                                {c.fullName}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="dataVenda"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Data da Venda</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>2. Adicione os Produtos</CardTitle></CardHeader>
-          <CardContent>
-            <Popover open={produtoPopoverOpen} onOpenChange={setProdutoPopoverOpen}>
-              <PopoverTrigger asChild><Button type="button" variant="outline">Adicionar Produto</Button></PopoverTrigger>
-              <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-                <Command>
-                  <CommandInput placeholder="Buscar produto..." onValueChange={setProdutoSearch} />
-                  <CommandList>
-                    <CommandEmpty>Nenhum produto encontrado.</CommandEmpty>
-                    <CommandGroup>
-                      {produtos?.map(produto => (
-                        <CommandItem key={produto._id} value={produto.nome} onSelect={() => {
-                          append({ produto, quantidade: 1, precoUnitario: produto.precoVenda });
-                          setProdutoPopoverOpen(false);
-                        }}>
-                          {produto.nome} ({produto.codigo})
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            <div className="overflow-x-auto mt-4">
-              <Table className="min-w-[600px]">
-                <TableHeader><TableRow><TableHead>Produto</TableHead><TableHead className="w-[100px]">Qtd.</TableHead><TableHead className="w-[150px]">Preço Unit.</TableHead><TableHead>Subtotal</TableHead><TableHead className="w-[50px]"></TableHead></TableRow></TableHeader>
-                <TableBody>
-                  {fields.map((field, index) => (
-                    <TableRow key={field.id}>
-                      <TableCell>{field.produto.nome}</TableCell>
-                      <TableCell><Input type="number" defaultValue={1} {...register(`itens.${index}.quantidade`, { valueAsNumber: true })} className="w-20" /></TableCell>
-                      <TableCell><Input type="number" step="0.01" {...register(`itens.${index}.precoUnitario`, { valueAsNumber: true })} className="w-28" /></TableCell>
-                      <TableCell>{(itensVenda[index]?.quantidade * itensVenda[index]?.precoUnitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
-                      <TableCell><Button variant="ghost" size="icon" type="button" onClick={() => remove(index)}><Trash2 className="h-4 w-4 text-red-500" /></Button></TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>3. Pagamento</CardTitle></CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Controller
-                control={control}
-                name="pagamento.metodo"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel>Método de Pagamento</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger className="mt-2"><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
-                      <SelectContent>
-                        <SelectItem value="Dinheiro">Dinheiro</SelectItem>
-                        <SelectItem value="Pix">Pix</SelectItem>
-                        <SelectItem value="Débito">Débito</SelectItem>
-                        <SelectItem value="Crédito">Crédito</SelectItem>
-                        <SelectItem value="Boleto">Boleto</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {fieldState.error && <FormMessage className="mt-1">{fieldState.error.message}</FormMessage>}
-                  </FormItem>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl text-blue-300">Nova Venda</h1>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className='text-gray-800/50'>1. Cliente</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  placeholder="Buscar cliente por nome..."
+                  value={buscaCliente}
+                  onChange={(e) => setBuscaCliente(e.target.value)}
+                  className="pl-10"
+                />
+                {clientes.length > 0 && (
+                  <ul className="absolute z-10 w-full bg-white border rounded-md mt-1 max-h-60 overflow-y-auto">
+                    {clientes.map(cliente => (
+                      <li key={cliente._id} onClick={() => selecionarCliente(cliente)} className="p-2 hover:bg-gray-100 cursor-pointer">
+                        {cliente.fullName}
+                      </li>
+                    ))}
+                  </ul>
                 )}
-              />
-              {(metodoPagamento === 'Boleto') && (
-                <FormField
-                  control={control}
-                  name="valorEntrada"
+              </div>
+              {clienteSelecionado && (
+                <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                  <p className="font-semibold">Cliente Selecionado:</p>
+                  <p>{clienteSelecionado.fullName}</p>
+                </div>
+              )}
+              <FormField
+                  control={form.control}
+                  name="clienteId"
                   render={({ field }) => (
                       <FormItem>
-                          <FormLabel>Valor de Entrada (R$)</FormLabel>
                           <FormControl>
-                              <Input type="number" step="0.01" placeholder="0.00" {...field} className="mt-2"/>
+                              <Input type="hidden" {...field} />
                           </FormControl>
                           <FormMessage />
                       </FormItem>
                   )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className='text-gray-800/50'>2. Produtos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Input
+                  placeholder="Buscar produto por nome..."
+                  value={buscaProduto}
+                  onChange={(e) => setBuscaProduto(e.target.value)}
+                  className="pl-10"
                 />
-              )}
-              {(metodoPagamento === 'Crédito' || metodoPagamento === 'Boleto') && (
-                <Controller
-                  control={control}
-                  name="pagamento.parcelas"
+                {produtos.length > 0 && (
+                  <ul className="absolute z-10 w-full bg-white border rounded-md mt-1 max-h-60 overflow-y-auto">
+                    {produtos.map(produto => (
+                      <li key={produto._id} onClick={() => adicionarProduto(produto)} className="p-2 hover:bg-gray-100 cursor-pointer">
+                        {produto.nome}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Produto</TableHead>
+                    <TableHead className="w-24">Qtd.</TableHead>
+                    <TableHead className="w-36">Valor Unitário</TableHead>
+                    <TableHead className="w-36 text-right">Subtotal</TableHead>
+                    <TableHead className="w-12"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {fields.map((field, index) => (
+                    <TableRow key={field.id}>
+                      <TableCell className='text-gray-800/50'>{field.nome}</TableCell>
+                      <TableCell>
+                        <FormField
+                          control={form.control}
+                          name={`produtos.${index}.quantidade`}
+                          render={({ field }) => (
+                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell>
+                         <FormField
+                          control={form.control}
+                          name={`produtos.${index}.valorUnitario`}
+                          render={({ field }) => (
+                            <Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell className="text-right text-gray-800/50">
+                        {formatCurrency(produtosDaVenda[index].quantidade * produtosDaVenda[index].valorUnitario)}
+                      </TableCell>
+                       <TableCell>
+                        <Button variant="ghost" size="icon" onClick={() => remove(index)}>
+                          <Trash2 className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+               {form.formState.errors.produtos && <p className="text-sm font-medium text-destructive mt-2">{form.formState.errors.produtos.message}</p>}
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>3. Pagamento</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <FormField
+                control={form.control}
+                name="porcentagemEntrada"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Entrada (%)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Ex: 50" {...field} onChange={e => field.onChange(Number(e.target.value))}/>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="condicaoPagamento"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Condição</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a condição" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="À vista">À vista</SelectItem>
+                        <SelectItem value="A prazo">A prazo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="metodoPagamento"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Forma de Pagamento</FormLabel>
+                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a forma" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Dinheiro">Dinheiro</SelectItem>
+                        <SelectItem value="Cartão de Crédito">Cartão de Crédito</SelectItem>
+                        <SelectItem value="Cartão de Débito">Cartão de Débito</SelectItem>
+                        <SelectItem value="PIX">PIX</SelectItem>
+                        <SelectItem value="Boleto">Boleto</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {condicaoPagamento === 'A prazo' && (
+                <FormField
+                  control={form.control}
+                  name="parcelas"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nº de Parcelas</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} defaultValue={String(field.value)}>
-                        <FormControl><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger></FormControl>
-                        <SelectContent>
-                          {Array.from({ length: metodoPagamento === 'Crédito' ? 15 : 10 }, (_, i) => i + 1).map(p => (
-                            <SelectItem key={p} value={String(p)}>{p}x</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormLabel>Parcelas</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="Ex: 3" {...field} onChange={e => field.onChange(Number(e.target.value))}/>
+                      </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
               )}
-            </div>
-            <div className="text-right text-2xl font-bold pt-4 text-blue-300">
-              Total: {valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-            </div>
-          </CardContent>
-        </Card>
-        <div className="flex justify-end">
-          <Button type="submit" size="lg" disabled={isPending || itensVenda.length === 0 || !watch('cliente')}>
-            {isPending ? 'A finalizar...' : 'Finalizar Venda'}
-          </Button>
-        </div>
-      </form>
-    </Form>
-  );
-}
+            </CardContent>
+            <CardFooter className="flex justify-end bg-gray-50 p-4 rounded-b-md">
+                <div className='text-right'>
+                    <p>Valor de Entrada: <span className='font-bold'>{formatCurrency(valorEntrada)}</span></p>
+                    <p>Valor Restante: <span className='font-bold'>{formatCurrency(valorRestante)}</span></p>
+                    <p>Restante na Entrega: <span className='font-bold'>{porcentagemRestante.toFixed(2)}%</span></p>
+                    <p className='text-xl font-bold mt-2'>Total da Venda: {formatCurrency(valorTotal)}</p>
+                </div>
+            </CardFooter>
+          </Card>
 
-export default withAuth(NovaVendaPage);
+          <div className="flex justify-end">
+            <Button className='text-gray-800/50 cursor-pointer' type="submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? 'Salvando...' : 'Finalizar Venda'}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
+};
+
+export default NovaVendaPage;

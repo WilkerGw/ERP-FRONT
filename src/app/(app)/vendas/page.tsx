@@ -1,138 +1,150 @@
-// Caminho: ERP-FRONT-main/src/app/(app)/vendas/page.tsx
+// Caminho: src/app/(app)/vendas/page.tsx
 
-'use client';
+"use client";
 
-import withAuth from "@/components/auth/withAuth";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '@/services/api';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, PlusCircle, PackageCheck, Package } from 'lucide-react';
-import { toast, Toaster } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { PlusCircle, MoreHorizontal } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import api from '@/services/api';
 
-// Interface para corresponder à nova estrutura de dados do backend
-interface IVenda {
+// Interface atualizada para refletir os dados populados
+interface IClientePopulado {
   _id: string;
-  cliente: { fullName: string };
-  valorTotal: number;
-  valorPagoNaHora: number;
-  valorPendenteEntrega: number;
-  entregue: boolean;
-  dataVenda: string;
+  fullName: string;
 }
 
-function VendasPage() {
-  const queryClient = useQueryClient();
+interface IPagamento {
+  valorEntrada: number;
+  valorRestante: number;
+  metodoPagamento: string;
+  condicaoPagamento: string;
+  parcelas?: number;
+}
 
-  // Busca os dados das vendas da nossa API
-  const { data: vendas, isLoading, isError } = useQuery<IVenda[]>({
+interface IVendaPopulada {
+  _id: string;
+  cliente: IClientePopulado;
+  produtos: { produto: { nome: string } }[];
+  valorTotal: number;
+  status: 'Pendente' | 'Concluído' | 'Cancelado';
+  dataVenda: string;
+  pagamento?: IPagamento;
+}
+
+const fetchVendas = async (): Promise<IVendaPopulada[]> => {
+  const { data } = await api.get('/vendas');
+  return data;
+};
+
+const VendasPage = () => {
+  const queryClient = useQueryClient();
+  const { data: vendas, isLoading, error } = useQuery<IVendaPopulada[]>({
     queryKey: ['vendas'],
-    queryFn: async () => api.get('/vendas').then(res => res.data),
+    queryFn: fetchVendas,
   });
 
-  // Mutação para marcar uma venda como entregue
-  const { mutate: marcarComoEntregue, isPending: isUpdating } = useMutation({
-    mutationFn: (vendaId: string) => api.patch(`/vendas/${vendaId}/entregar`),
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string, status: string }) => {
+      return api.patch(`/vendas/${id}/status`, { status });
+    },
     onSuccess: () => {
-      toast.success("Venda marcada como entregue!");
       queryClient.invalidateQueries({ queryKey: ['vendas'] });
     },
-    onError: () => {
-      toast.error("Erro ao atualizar o status da venda.");
-    }
   });
 
-  const formatCurrency = (value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  const handleMarcarConcluido = (id: string) => {
+    updateStatusMutation.mutate({ id, status: 'Concluído' });
+  };
+  
+  const formatCurrency = (value?: number) => {
+    if (typeof value !== 'number' || isNaN(value)) {
+      return "R$ 0,00";
+    }
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  };
+  
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '--';
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
+
+  if (isLoading) return <div className="p-10">Carregando vendas...</div>;
+  if (error) return <div className="p-10 text-red-500">Erro ao carregar vendas.</div>;
 
   return (
     <div className="p-6 md:p-8 lg:p-10 min-h-screen">
-      <Toaster richColors position="top-right" />
-      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-        <div>
-            <h1 className="text-3xl font-bold tracking-tight">Histórico de Vendas</h1>
-            <p className="text-muted-foreground">Visualize e gira as suas vendas e entregas.</p>
-        </div>
-        <Button asChild className="mt-4 sm:mt-0">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl text-blue-300">Vendas</h1>
+        <Button className="text-gray-800/50" asChild>
           <Link href="/vendas/nova">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Registar Nova Venda
+            <PlusCircle className="mr-2 h-4 w-4" /> Nova Venda
           </Link>
         </Button>
-      </header>
-      
-      <main>
-        <Card>
-            <CardHeader>
-                <CardTitle>Vendas Recentes</CardTitle>
-                <CardDescription>Lista de todas as vendas registadas no sistema.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                    <TableRow>
-                        <TableHead>Cliente</TableHead>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Valor Total</TableHead>
-                        <TableHead>Pago na Hora</TableHead>
-                        <TableHead>Pendente Entrega</TableHead>
-                        <TableHead>Status Entrega</TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    {isLoading ? (
-                        <TableRow><TableCell colSpan={7} className="text-center h-24">A carregar vendas...</TableCell></TableRow>
-                    ) : isError ? (
-                        <TableRow><TableCell colSpan={7} className="text-center h-24 text-destructive">Erro ao carregar os dados.</TableCell></TableRow>
-                    ) : vendas && vendas.length > 0 ? (
-                        vendas.map((venda) => (
-                        <TableRow key={venda._id}>
-                            <TableCell className="font-medium text-gray-800/50">{venda.cliente?.fullName || 'N/A'}</TableCell>
-                            <TableCell className="text-gray-800/50">{new Date(venda.dataVenda).toLocaleDateString('pt-BR')}</TableCell>
-                            <TableCell className="text-gray-800/50">{formatCurrency(venda.valorTotal)}</TableCell>
-                            <TableCell className="text-green-500">{formatCurrency(venda.valorPagoNaHora)}</TableCell>
-                            <TableCell className="text-yellow-500">{formatCurrency(venda.valorPendenteEntrega)}</TableCell>
-                            <TableCell>
-                                <Badge variant={venda.entregue ? 'default' : 'secondary'}>
-                                    {venda.entregue ? <PackageCheck className="mr-1 h-3 w-3"/> : <Package className="mr-1 h-3 w-3"/>}
-                                    {venda.entregue ? 'Entregue' : 'Pendente'}
-                                </Badge>
-                            </TableCell>
-                            <TableCell className="text-right">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button aria-haspopup="true" size="icon" variant="ghost" disabled={isUpdating}>
-                                            <MoreHorizontal className="h-4 w-4 text-blue-500" />
-                                            <span className="sr-only">Menu de Ações</span>
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuItem 
-                                            disabled={venda.entregue || isUpdating} 
-                                            onClick={() => marcarComoEntregue(venda._id)}
-                                            className="cursor-pointer"
-                                        >
-                                            Marcar como Entregue
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </TableCell>
-                        </TableRow>
-                        ))
-                    ) : (
-                        <TableRow><TableCell colSpan={7} className="text-center h-24">Nenhuma venda encontrada.</TableCell></TableRow>
-                    )}
-                    </TableBody>
-                </Table>
-            </CardContent>
-        </Card>
-      </main>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className='text-gray-800/50'>Histórico de Vendas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Cliente</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead className="text-right">Valor Total</TableHead>
+                <TableHead className="text-right">Valor Restante</TableHead>
+                <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {vendas && vendas.map((venda) => (
+                <TableRow key={venda._id}>
+                  <TableCell className='text-gray-800/50'>{venda.cliente?.fullName || 'Cliente não informado'}</TableCell>
+                  <TableCell className='text-gray-800/50'>{formatDate(venda.dataVenda)}</TableCell>
+                  <TableCell className="text-right text-gray-800/50">{formatCurrency(venda.valorTotal)}</TableCell>
+                  <TableCell className="text-right font-medium text-red-500">
+                    {formatCurrency(venda.pagamento?.valorRestante)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant={venda.status === 'Concluído' ? 'default' : 'secondary'}>
+                      {venda.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0 text-blue-500 cursor-pointer">
+                          <span className="sr-only">Abrir menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleMarcarConcluido(venda._id)}>
+                          Marcar como Concluído
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
 
-export default withAuth(VendasPage);
+export default VendasPage;
