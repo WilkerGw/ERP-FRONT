@@ -1,6 +1,6 @@
 // Caminho: ERP-FRONT-main/src/app/(app)/page.tsx
 
-"use client";
+'use client';
 
 import withAuth from "@/components/auth/withAuth";
 import { useAuthStore } from "@/stores/authStore";
@@ -16,17 +16,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  BarChart,
   Calendar,
   Cake,
-  AlertTriangle, // Ícone 'Users' removido
+  AlertTriangle,
   Sparkles,
   LogOut,
   Landmark,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Interfaces
+// Interfaces atualizadas (sem os campos de vendas)
 interface Insight {
   _id: string;
   titulo: string;
@@ -35,8 +34,6 @@ interface Insight {
 }
 
 interface DashboardStats {
-  totalVendasDia: number;
-  totalVendasMes: number;
   boletosVencidos: number;
   boletosProximos: number;
   agendamentosProximos: number;
@@ -103,10 +100,10 @@ function HomePage() {
     <div className="p-6 md:p-8 lg:p-10 min-h-screen">
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <div>
-          <h1 className="text-3xl text-blue-300">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
             Bem-vindo(a),{" "}
-            <span className=" text-blue-300">
+            <span className="font-semibold text-foreground">
               {user?.nome || "Usuário"}
             </span>
             ! Veja um resumo do seu negócio.
@@ -130,13 +127,8 @@ function HomePage() {
             icon={<Landmark className="text-green-500" />}
         />
         <StatCard
-          title="Vendas do Dia"
-          value={formatCurrency(stats?.totalVendasDia)}
-          icon={<BarChart className="text-blue-500" />}
-        />
-        <StatCard
-          title="Vendas do Mês"
-          value={formatCurrency(stats?.totalVendasMes)}
+          title="Agendamentos Próximos"
+          value={stats?.agendamentosProximos || 0}
           icon={<Calendar className="text-indigo-500" />}
         />
         <StatCard
@@ -152,6 +144,12 @@ function HomePage() {
             </button>
           }
         />
+         <StatCard
+          title="Boletos a Vencer (7d)"
+          value={stats?.boletosProximos || 0}
+          icon={<Calendar className="text-yellow-500" />}
+        />
+
 
         {insight && (
           <div className="sm:col-span-2 lg:col-span-3 h-96 flex flex-col">

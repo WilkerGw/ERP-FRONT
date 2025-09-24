@@ -50,6 +50,7 @@ function NovaVendaPage() {
     defaultValues: {
       cliente: null,
       itens: [],
+      valorEntrada: 0,
       pagamento: { metodo: undefined, parcelas: 1 },
       dataVenda: getTodayString(),
     },
@@ -63,6 +64,16 @@ function NovaVendaPage() {
   
   const { mutate, isPending } = useMutation({
     mutationFn: (data: TVendaSchema) => {
+      const finalValorTotal = data.itens.reduce((acc, item) => acc + (Number(item.precoUnitario || 0) * Number(item.quantidade || 0)), 0);
+      const cashMethods = ['Dinheiro', 'Pix', 'Débito'];
+      let finalValorEntrada = 0;
+
+      if (cashMethods.includes(data.pagamento.metodo!)) {
+        finalValorEntrada = finalValorTotal;
+      } else {
+        finalValorEntrada = Number(data.valorEntrada || 0);
+      }
+
       const payload = {
         cliente: data.cliente?._id,
         itens: data.itens.map(item => ({
@@ -70,11 +81,12 @@ function NovaVendaPage() {
           quantidade: Number(item.quantidade),
           precoUnitario: Number(item.precoUnitario),
         })),
+        valorTotal: finalValorTotal,
+        valorEntrada: finalValorEntrada,
         pagamento: {
           metodo: data.pagamento.metodo,
           parcelas: Number(data.pagamento.parcelas),
         },
-        valorTotal,
         dataVenda: data.dataVenda,
       };
       return api.post('/vendas', payload);
@@ -94,7 +106,6 @@ function NovaVendaPage() {
   });
   
   const onValidSubmit = (data: TVendaSchema) => {
-    console.log("Validação passou! Enviando para a API:", data);
     mutate(data);
   };
 
@@ -106,9 +117,9 @@ function NovaVendaPage() {
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(onValidSubmit, onInvalidSubmit)} className="p-4 md:p-8 space-y-6">
-        <h1 className="text-3xl text-blue-300">Registrar Nova Venda</h1>
+        <h1 className="text-3xl text-blue-300">Registar Nova Venda</h1>
         <Card>
-          <CardHeader><CardTitle className='text-gray-800/50'>1. Dados da Venda</CardTitle></CardHeader>
+          <CardHeader><CardTitle>1. Dados da Venda</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={control}
@@ -117,13 +128,13 @@ function NovaVendaPage() {
                 <FormItem>
                   <FormLabel>Cliente</FormLabel>
                   <Popover open={clientePopoverOpen} onOpenChange={setClientePopoverOpen}>
+                    {/* --- CORREÇÃO AQUI --- */}
+                    {/* O <Button> agora é o filho direto do PopoverTrigger, sem o FormControl a envolvê-lo */}
                     <PopoverTrigger asChild>
-                      <FormControl className='shadow shadow-gray-800/50'>
-                        <Button variant="outline" role="combobox" className="w-full bg-white/20 rounded-sm justify-between text-gray-800/50">
-                          {field.value ? field.value.fullName : "Selecione um cliente..."}
-                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                        </Button>
-                      </FormControl>
+                      <Button variant="outline" role="combobox" className="w-full justify-between">
+                        {field.value ? field.value.fullName : "Selecione um cliente..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                       <Command>
@@ -151,8 +162,8 @@ function NovaVendaPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Data da Venda</FormLabel>
-                  <FormControl className='shadow shadow-gray-800/50'>
-                    <Input type="date" {...field} className='lg:w-[10rem]' />
+                  <FormControl>
+                    <Input type="date" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -161,10 +172,10 @@ function NovaVendaPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle className='text-gray-800/50'>2. Adicione os Produtos</CardTitle></CardHeader>
+          <CardHeader><CardTitle>2. Adicione os Produtos</CardTitle></CardHeader>
           <CardContent>
             <Popover open={produtoPopoverOpen} onOpenChange={setProdutoPopoverOpen}>
-              <PopoverTrigger asChild><Button type="button" variant="outline" className='bg-white/20 rounded-sm text-gray-800/50 shadow shadow-gray-800/50'>Adicionar Produto</Button></PopoverTrigger>
+              <PopoverTrigger asChild><Button type="button" variant="outline">Adicionar Produto</Button></PopoverTrigger>
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                 <Command>
                   <CommandInput placeholder="Buscar produto..." onValueChange={setProdutoSearch} />
@@ -190,10 +201,10 @@ function NovaVendaPage() {
                 <TableBody>
                   {fields.map((field, index) => (
                     <TableRow key={field.id}>
-                      <TableCell className='text-gray-800/50'>{field.produto.nome}</TableCell>
-                      <TableCell className='text-gray-800/50'><Input type="number" defaultValue={1} {...register(`itens.${index}.quantidade`, { valueAsNumber: true })} className="w-20 shadow shadow-gray-800/50" /></TableCell>
-                      <TableCell className='text-gray-800/50'><Input type="number" step="0.01" {...register(`itens.${index}.precoUnitario`, { valueAsNumber: true })} className="w-28 shadow shadow-gray-800/50" /></TableCell>
-                      <TableCell className='text-gray-800/50'>{(itensVenda[index]?.quantidade * itensVenda[index]?.precoUnitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                      <TableCell>{field.produto.nome}</TableCell>
+                      <TableCell><Input type="number" defaultValue={1} {...register(`itens.${index}.quantidade`, { valueAsNumber: true })} className="w-20" /></TableCell>
+                      <TableCell><Input type="number" step="0.01" {...register(`itens.${index}.precoUnitario`, { valueAsNumber: true })} className="w-28" /></TableCell>
+                      <TableCell>{(itensVenda[index]?.quantidade * itensVenda[index]?.precoUnitario || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
                       <TableCell><Button variant="ghost" size="icon" type="button" onClick={() => remove(index)}><Trash2 className="h-4 w-4 text-red-500" /></Button></TableCell>
                     </TableRow>
                   ))}
@@ -203,17 +214,17 @@ function NovaVendaPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle className='text-gray-800/50'>3. Pagamento</CardTitle></CardHeader>
+          <CardHeader><CardTitle>3. Pagamento</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Controller
                 control={control}
                 name="pagamento.metodo"
                 render={({ field, fieldState }) => (
-                  <div>
+                  <FormItem>
                     <FormLabel>Método de Pagamento</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl><SelectTrigger className="mt-2 shadow shadow-gray-800/50"><SelectValue placeholder="Selecione..." className='text-white/50'/></SelectTrigger></FormControl>
+                      <FormControl><SelectTrigger className="mt-2"><SelectValue placeholder="Selecione..." /></SelectTrigger></FormControl>
                       <SelectContent>
                         <SelectItem value="Dinheiro">Dinheiro</SelectItem>
                         <SelectItem value="Pix">Pix</SelectItem>
@@ -223,25 +234,40 @@ function NovaVendaPage() {
                       </SelectContent>
                     </Select>
                     {fieldState.error && <FormMessage className="mt-1">{fieldState.error.message}</FormMessage>}
-                  </div>
+                  </FormItem>
                 )}
               />
+              {(metodoPagamento === 'Boleto') && (
+                <FormField
+                  control={control}
+                  name="valorEntrada"
+                  render={({ field }) => (
+                      <FormItem>
+                          <FormLabel>Valor de Entrada (R$)</FormLabel>
+                          <FormControl>
+                              <Input type="number" step="0.01" placeholder="0.00" {...field} className="mt-2"/>
+                          </FormControl>
+                          <FormMessage />
+                      </FormItem>
+                  )}
+                />
+              )}
               {(metodoPagamento === 'Crédito' || metodoPagamento === 'Boleto') && (
                 <Controller
                   control={control}
                   name="pagamento.parcelas"
                   render={({ field }) => (
-                    <div>
+                    <FormItem>
                       <FormLabel>Nº de Parcelas</FormLabel>
                       <Select onValueChange={(value) => field.onChange(parseInt(value, 10))} defaultValue={String(field.value)}>
-                        <FormControl><SelectTrigger className="mt-2 shadow shadow-gray-800/50"><SelectValue /></SelectTrigger></FormControl>
+                        <FormControl><SelectTrigger className="mt-2"><SelectValue /></SelectTrigger></FormControl>
                         <SelectContent>
                           {Array.from({ length: metodoPagamento === 'Crédito' ? 15 : 10 }, (_, i) => i + 1).map(p => (
                             <SelectItem key={p} value={String(p)}>{p}x</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                    </div>
+                    </FormItem>
                   )}
                 />
               )}
@@ -252,8 +278,8 @@ function NovaVendaPage() {
           </CardContent>
         </Card>
         <div className="flex justify-end">
-          <Button className='text-gray-800/70' type="submit" size="lg" disabled={isPending || itensVenda.length === 0 || !watch('cliente')}>
-            {isPending ? 'Finalizando...' : 'Finalizar Venda'}
+          <Button type="submit" size="lg" disabled={isPending || itensVenda.length === 0 || !watch('cliente')}>
+            {isPending ? 'A finalizar...' : 'Finalizar Venda'}
           </Button>
         </div>
       </form>

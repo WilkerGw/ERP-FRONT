@@ -8,24 +8,24 @@ import {
   LayoutDashboard,
   Users,
   Package,
-  ShoppingCart,
+  ShoppingCart, // 1. Ícone de Vendas reintroduzido
   FileText,
   Calendar,
   BarChart3,
-  Landmark, // 1. Importar o novo ícone
+  Landmark,
 } from "lucide-react";
 import Image from "next/image";
 
-// 2. Adicionar o novo item de navegação para o Caixa
+// 2. Lista de navegação com o item "Vendas" de volta
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Relatórios", href: "/relatorios", icon: BarChart3 },
   { name: "Agendamentos", href: "/agendamentos", icon: Calendar },
   { name: "Clientes", href: "/clientes", icon: Users },
-  { name: "Vendas", href: "/vendas", icon: ShoppingCart },
+  { name: "Vendas", href: "/vendas", icon: ShoppingCart }, // ITEM "VENDAS" DE VOLTA
   { name: "Boletos", href: "/boletos", icon: FileText },
   { name: "Produtos", href: "/produtos", icon: Package },
-  { name: "Caixa", href: "/caixa", icon: Landmark }, // NOVO ITEM AQUI
+  { name: "Caixa", href: "/caixa", icon: Landmark },
 ];
 
 interface SidebarProps {
@@ -36,7 +36,6 @@ export default function Sidebar({ onLinkClick }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    // O resto do componente permanece o mesmo
     <aside className="w-full h-full flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       <div className="p-4 border-b border-sidebar-border flex justify-center">
         <Link href="/" className="flex items-center gap-2">
