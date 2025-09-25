@@ -58,6 +58,7 @@ function OrdensServicoPage() {
     }
   };
 
+  // Função para formatar a data. Ela já lida com datas nulas ou indefinidas.
   const formatDate = (dateString?: string) => {
     if (!dateString) return '--';
     return new Date(dateString).toLocaleDateString('pt-BR');
@@ -105,27 +106,32 @@ function OrdensServicoPage() {
                   <TableHead>Cliente</TableHead>
                   <TableHead>Data de Abertura</TableHead>
                   <TableHead>Previsão de Entrega</TableHead>
+                  {/* NOVA COLUNA ADICIONADA AQUI */}
+                  <TableHead>Data da Entrega</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead><span className="sr-only">Ações</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
+                {/* O colSpan foi atualizado para 7 para abranger a nova coluna */}
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={6} className="text-center h-24">Carregando ordens...</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center h-24">Carregando ordens...</TableCell></TableRow>
                 ) : isError ? (
-                  <TableRow><TableCell colSpan={6} className="text-center h-24 text-destructive">Erro ao carregar os dados.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center h-24 text-destructive">Erro ao carregar os dados.</TableCell></TableRow>
                 ) : ordens && ordens.length > 0 ? (
                   ordens.map((os) => (
                     <TableRow key={os._id}>
-                      <TableCell className="font-mono">#{os.numeroOS}</TableCell>
-                      <TableCell className="font-medium">{os.cliente.fullName}</TableCell>
-                      <TableCell>{formatDate(os.createdAt)}</TableCell>
-                      <TableCell>{formatDate(os.previsaoEntrega)}</TableCell>
+                      <TableCell className="font-mono text-gray-800/50">#{os.numeroOS}</TableCell>
+                      <TableCell className="font-medium text-gray-800/50">{os.cliente.fullName}</TableCell>
+                      <TableCell className='text-gray-800/50'>{formatDate(os.createdAt)}</TableCell>
+                      <TableCell className='text-gray-800/50'>{formatDate(os.previsaoEntrega)}</TableCell>
+                      {/* CÉLULA COM O DADO DA NOVA COLUNA */}
+                      <TableCell className='text-gray-800/50'>{formatDate(os.dataEntrega)}</TableCell>
                       <TableCell><Badge variant={getStatusVariant(os.status)}>{os.status}</Badge></TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                            <Button className='text-blue-500' aria-haspopup="true" size="icon" variant="ghost">
                               <MoreHorizontal className="h-4 w-4" />
                               <span className="sr-only">Menu</span>
                             </Button>
@@ -140,7 +146,7 @@ function OrdensServicoPage() {
                     </TableRow>
                   ))
                 ) : (
-                  <TableRow><TableCell colSpan={6} className="text-center h-24">Nenhuma ordem de serviço encontrada.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center h-24">Nenhuma ordem de serviço encontrada.</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>

@@ -12,9 +12,7 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon, content }) => {
   return (
-    // 1. Removida a classe inválida "w-sm".
-    // 2. Adicionamos "flex flex-col" para garantir que o conteúdo se alinhe verticalmente.
-    // 3. Adicionamos "h-full" para que todos os cards na mesma linha do grid tenham a mesma altura.
+    // A classe h-full garante que todos os cards na mesma linha do grid tenham a mesma altura.
     <Card className="flex flex-col h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -24,12 +22,14 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, content }) => {
           {icon}
         </div>
       </CardHeader>
-      {/* 4. Adicionamos "flex-grow" para que esta área cresça e preencha o espaço vertical disponível,
-          útil para cards com mais conteúdo como o de "Aniversariantes". */}
-      <CardContent className="flex-grow">
+      {/* - A classe "flex-1" faz com que esta área cresça para preencher o espaço vertical.
+        - "min-h-0" é uma correção para garantir que o overflow funcione corretamente em layouts flex.
+      */}
+      <CardContent className="flex flex-1 flex-col min-h-0">
         <div className="text-2xl font-bold">
           {value}
         </div>
+        {/* O conteúdo (como a lista de aniversariantes) será renderizado aqui */}
         {content}
       </CardContent>
     </Card>

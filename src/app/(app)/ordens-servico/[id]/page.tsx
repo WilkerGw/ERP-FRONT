@@ -84,7 +84,7 @@ function DetalhesOrdemServicoPage() {
                     <Button variant="outline" size="sm" asChild>
                         <Link href="/ordens-servico"><ArrowLeft className="mr-2 h-4 w-4" /> Voltar</Link>
                     </Button>
-                    <h1 className="text-3xl font-bold mt-2">Ordem de Serviço #{os.numeroOS}</h1>
+                    <h1 className="text-3xl font-bold mt-2">OS<div className="text-3xl text-blue-300">#{os.numeroOS}</div></h1>
                     <p className="text-muted-foreground">Aberta em: {formatDate(os.createdAt)}</p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -96,7 +96,7 @@ function DetalhesOrdemServicoPage() {
                             ))}
                         </SelectContent>
                     </Select>
-                    <Button onClick={handleUpdateStatus} disabled={updateStatusMutation.isPending || selectedStatus === os.status}>
+                    <Button className='text-blue-300' onClick={handleUpdateStatus} disabled={updateStatusMutation.isPending || selectedStatus === os.status}>
                         <CheckCircle className="mr-2 h-4 w-4" />
                         {updateStatusMutation.isPending ? 'Salvando...' : 'Salvar Status'}
                     </Button>
@@ -106,7 +106,7 @@ function DetalhesOrdemServicoPage() {
             <main className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-1 space-y-6">
                     <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><Clipboard /> Resumo da O.S.</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="flex items-center gap-2 text-blue-300"><Clipboard /> Resumo da O.S.</CardTitle></CardHeader>
                         <CardContent className="space-y-2">
                             <div className="flex justify-between items-center">
                                 <span className="text-muted-foreground">Status Atual:</span>
@@ -118,39 +118,39 @@ function DetalhesOrdemServicoPage() {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Data de Entrega:</span>
-                                <span>{os.dataEntrega ? formatDate(os.dataEntrega) : '--'}</span>
+                                <span className='opacity-80'>{os.dataEntrega ? formatDate(os.dataEntrega) : '--'}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-muted-foreground">Venda Associada:</span>
-                                <Link href={`/vendas/${os.venda._id}`} className="text-primary hover:underline">Ver Venda</Link>
+                                <Link href={`/vendas/${os.venda._id}`} className="text-primary hover:underline text-sm opacity-80">Ver Venda</Link>
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><User /> Cliente</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="flex items-center gap-2 text-blue-300"><User /> Cliente</CardTitle></CardHeader>
                         <CardContent>
-                            <p className="font-semibold text-lg">{os.cliente.fullName}</p>
+                            <p className="font-semibold text-lg text-gray-800/50">{os.cliente.fullName}</p>
                             <p className="text-muted-foreground">{os.cliente.email}</p>
-                            <p className="text-muted-foreground">{os.cliente.phone}</p>
+                            <p className="text-gray-800/50 text-sm">{os.cliente.phone}</p>
                         </CardContent>
                     </Card>
                 </div>
 
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><Receipt /> Dados da Receita</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="flex items-center gap-2 text-blue-300"><Receipt /> Dados da Receita</CardTitle></CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                                <div className="font-bold col-span-2 sm:col-span-4">Olho Direito (OD)</div>
+                                <div className="font-bold col-span-2 sm:col-span-4 text-gray-800/50">Olho Direito (OD)</div>
                                 <div><span className="text-muted-foreground">Esférico:</span> {os.receita.esfericoDireito || '--'}</div>
                                 <div><span className="text-muted-foreground">Cilíndrico:</span> {os.receita.cilindricoDireito || '--'}</div>
                                 <div><span className="text-muted-foreground">Eixo:</span> {os.receita.eixoDireito || '--'}</div>
-                                <div className="font-bold col-span-2 sm:col-span-4 mt-2">Olho Esquerdo (OE)</div>
+                                <div className="font-bold col-span-2 sm:col-span-4 mt-2 text-gray-800/50">Olho Esquerdo (OE)</div>
                                 <div><span className="text-muted-foreground">Esférico:</span> {os.receita.esfericoEsquerdo || '--'}</div>
                                 <div><span className="text-muted-foreground">Cilíndrico:</span> {os.receita.cilindricoEsquerdo || '--'}</div>
                                 <div><span className="text-muted-foreground">Eixo:</span> {os.receita.eixoEsquerdo || '--'}</div>
-                                <div className="font-bold col-span-2 sm:col-span-4 mt-2">Adicionais</div>
+                                <div className="font-bold col-span-2 sm:col-span-4 mt-2 text-gray-800/50">Adicionais</div>
                                 <div><span className="text-muted-foreground">Adição:</span> {os.receita.adicao || '--'}</div>
                                 <div><span className="text-muted-foreground">Altura:</span> {os.receita.altura || '--'}</div>
                                 <div><span className="text-muted-foreground">DP:</span> {os.receita.dp || '--'}</div>
@@ -159,11 +159,11 @@ function DetalhesOrdemServicoPage() {
                     </Card>
 
                     <Card>
-                        <CardHeader><CardTitle className="flex items-center gap-2"><Package /> Produtos do Serviço</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="flex items-center gap-2 text-blue-300"><Package /> Produtos do Serviço</CardTitle></CardHeader>
                         <CardContent>
                             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
                                 {os.produtosServico.map(p => (
-                                    <li key={p.produto}>
+                                    <li key={p.produto} className='opacity-80'>
                                         <span className="text-foreground">{p.nome}</span>
                                     </li>
                                 ))}

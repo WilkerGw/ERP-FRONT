@@ -244,7 +244,7 @@ export const VendaForm = ({ initialData, vendaId }: VendaFormProps) => {
 
         {/* Card de Pagamento */}
         <Card>
-          <CardHeader><CardTitle>3. Pagamento</CardTitle></CardHeader>
+          <CardHeader><CardTitle className='text-gray-800/50'>3. Pagamento</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <FormField control={form.control} name="porcentagemEntrada" render={({ field }) => (<FormItem><FormLabel>Entrada (%)</FormLabel><FormControl><Input type="number" placeholder="Ex: 50" {...field} onChange={e => field.onChange(Number(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="condicaoPagamento" render={({ field }) => (<FormItem><FormLabel>Condição</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione a condição" /></SelectTrigger></FormControl><SelectContent><SelectItem value="À vista">À vista</SelectItem><SelectItem value="A prazo">A prazo</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />

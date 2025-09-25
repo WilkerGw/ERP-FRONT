@@ -22,12 +22,12 @@ import {
   Sparkles,
   LogOut,
   Landmark,
-  DollarSign, // Ícone para vendas
-  Wallet,     // Ícone para vendas
+  DollarSign,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Interfaces atualizadas para incluir os campos de vendas
+// Interfaces (sem alteração)
 interface Insight {
   _id: string;
   titulo: string;
@@ -36,8 +36,8 @@ interface Insight {
 }
 
 interface DashboardStats {
-  totalVendasDia: number; // Novo campo
-  totalVendasMes: number; // Novo campo
+  totalVendasDia: number;
+  totalVendasMes: number;
   boletosVencidos: number;
   boletosProximos: number;
   agendamentosProximos: number;
@@ -123,96 +123,107 @@ function HomePage() {
         </Button>
       </header>
       
-      {/* --- CARDS ATUALIZADOS --- */}
-      <main className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:items-start">
-        <StatCard
-            title="Vendas do Dia"
-            value={formatCurrency(stats?.totalVendasDia)}
-            icon={<DollarSign className="text-green-500" />}
-        />
-        <StatCard
-            title="Vendas do Mês"
-            value={formatCurrency(stats?.totalVendasMes)}
-            icon={<Wallet className="text-green-500" />}
-        />
-        <StatCard
-            title="Saldo em Caixa"
-            value={formatCurrency(caixaData?.saldo)}
-            icon={<Landmark className="text-blue-500" />}
-        />
-        <StatCard
-          title="Agendamentos Próximos"
-          value={stats?.agendamentosProximos || 0}
-          icon={<Calendar className="text-indigo-500" />}
-        />
-        <StatCard
-          title="Boletos Vencidos"
-          value={stats?.boletosVencidos || 0}
-          icon={<AlertTriangle className="text-red-500" />}
-          content={
-            <button
-              onClick={() => router.push("/boletos")}
-              className="text-xs text-blue-500 hover:underline mt-1"
-            >
-              Ver boletos
-            </button>
-          }
-        />
-         <StatCard
-          title="Boletos a Vencer (7d)"
-          value={stats?.boletosProximos || 0}
-          icon={<Calendar className="text-yellow-500" />}
-        />
-
-        {insight && (
-          <div className="sm:col-span-2 lg:col-span-2 h-96 flex flex-col">
-            <Card className='flex-1 flex flex-col min-h-0'>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="text-purple-500" />
-                  {insight.titulo}
-                </CardTitle>
-                <CardDescription>
-                  Análise gerada via IA em{" "}
-                  {new Date(insight.dataGeracao).toLocaleString("pt-BR")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex-1 min-h-0 overflow-y-auto pr-4">
-                <p className="text-sm text-foreground/90 whitespace-pre-wrap">
-                  {insight.conteudo}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        <div className="sm:col-span-2 lg:col-span-2">
+      {/* --- ESTRUTURA DO LAYOUT ATUALIZADA --- */}
+      <main className="space-y-6">
+        {/* Nova seção para a primeira linha de cards */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard
-            title="Aniversariantes do Mês"
-            value={stats?.aniversariantesMes.length || 0}
-            icon={<Cake className="text-pink-500" />}
-            content={
-                <ul className="space-y-1 text-xs mt-2 max-h-48 overflow-y-auto pr-2">
-                {stats?.aniversariantesMes &&
-                stats.aniversariantesMes.length > 0 ? (
-                    stats.aniversariantesMes.map((aniversariante, index) => (
-                    <li key={index} className="truncate text-muted-foreground">
-                        <span className="font-semibold text-foreground">
-                        Dia {aniversariante.dia}
-                        </span>{" "}
-                        - {aniversariante.nome}
-                    </li>
-                    ))
-                ) : (
-                    <li className="text-muted-foreground">
-                    Nenhum aniversariante este mês.
-                    </li>
-                )}
-                </ul>
-            }
+                title="Vendas do Dia"
+                value={formatCurrency(stats?.totalVendasDia)}
+                icon={<DollarSign className="text-green-500" />}
+            />
+            <StatCard
+                title="Vendas do Mês"
+                value={formatCurrency(stats?.totalVendasMes)}
+                icon={<Wallet className="text-green-500" />}
+            />
+            <StatCard
+                title="Saldo em Caixa"
+                value={formatCurrency(caixaData?.saldo)}
+                icon={<Landmark className="text-blue-500" />}
             />
         </div>
         
+        {/* Nova seção para a segunda linha de cards */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <StatCard
+              title="Boletos Vencidos"
+              value={stats?.boletosVencidos || 0}
+              icon={<AlertTriangle className="text-red-500" />}
+              content={
+                <button
+                  onClick={() => router.push("/boletos")}
+                  className="text-xs text-blue-500 hover:underline mt-1"
+                >
+                  Ver boletos
+                </button>
+              }
+            />
+            <StatCard
+              title="Boletos a Vencer (7d)"
+              value={stats?.boletosProximos || 0}
+              icon={<Calendar className="text-yellow-500" />}
+            />
+            <StatCard
+              title="Agendamentos Próximos"
+              value={stats?.agendamentosProximos || 0}
+              icon={<Calendar className="text-indigo-500" />}
+            />
+        </div>
+
+        {/* Seção para os cards maiores, agora separados */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Card de Análise da IA */}
+            {insight && (
+                <div className="lg:col-span-3"> {/* Ocupa toda a largura */}
+                    <Card className='flex flex-col min-h-[24rem]'> {/* Altura mínima para consistência */}
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                            <Sparkles className="text-purple-500" />
+                            {insight.titulo}
+                            </CardTitle>
+                            <CardDescription>
+                            Análise gerada via IA em{" "}
+                            {new Date(insight.dataGeracao).toLocaleString("pt-BR")}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex-1 min-h-0 overflow-y-auto pr-4">
+                            <p className="text-sm text-foreground/90 whitespace-pre-wrap">
+                            {insight.conteudo}
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+            
+            {/* Card de Aniversariantes (pode ocupar a largura toda ou parcial) */}
+            <div className="lg:col-span-3"> {/* Ocupa toda a largura */}
+                <StatCard
+                title="Aniversariantes do Mês"
+                value={stats?.aniversariantesMes.length || 0}
+                icon={<Cake className="text-pink-500" />}
+                content={
+                    <ul className="space-y-1 text-xs mt-2 max-h-48 overflow-y-auto pr-2">
+                    {stats?.aniversariantesMes &&
+                    stats.aniversariantesMes.length > 0 ? (
+                        stats.aniversariantesMes.map((aniversariante, index) => (
+                        <li key={index} className="truncate text-muted-foreground">
+                            <span className="font-semibold text-foreground">
+                            Dia {aniversariante.dia}
+                            </span>{" "}
+                            - {aniversariante.nome}
+                        </li>
+                        ))
+                    ) : (
+                        <li className="text-muted-foreground">
+                        Nenhum aniversariante este mês.
+                        </li>
+                    )}
+                    </ul>
+                }
+                />
+            </div>
+        </div>
       </main>
     </div>
   );
