@@ -6,10 +6,10 @@ import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { VendaForm } from '@/components/vendas/VendaForm';
-import { IVenda } from '@/models/Venda';
+import { IVendaPopulada } from '@/types/models'; // Importamos a nossa nova interface
 
 // Função para buscar os dados da venda que será editada
-const fetchVendaById = async (id: string) => {
+const fetchVendaById = async (id: string): Promise<IVendaPopulada> => {
   const { data } = await api.get(`/vendas/${id}`);
   return data;
 };
@@ -18,8 +18,7 @@ const EditarVendaPage = () => {
   const params = useParams();
   const id = params.id as string;
 
-  // Busca os dados iniciais da venda
-  const { data: initialData, isLoading, error } = useQuery<IVenda>({
+  const { data: initialData, isLoading, error } = useQuery<IVendaPopulada>({
     queryKey: ['venda', id],
     queryFn: () => fetchVendaById(id),
     enabled: !!id,
@@ -37,9 +36,7 @@ const EditarVendaPage = () => {
   const formattedInitialData = {
     clienteId: initialData.cliente._id,
     produtos: initialData.produtos.map(p => ({
-      // @ts-ignore
       produtoId: p.produto._id,
-      // @ts-ignore
       nome: p.produto.nome,
       quantidade: p.quantidade,
       valorUnitario: p.valorUnitario,
@@ -49,7 +46,7 @@ const EditarVendaPage = () => {
     condicaoPagamento: initialData.pagamento.condicaoPagamento,
     metodoPagamento: initialData.pagamento.metodoPagamento,
     parcelas: initialData.pagamento.parcelas || 1,
-    cliente: initialData.cliente, // Passa o objeto completo do cliente
+    cliente: initialData.cliente,
   };
 
   return (

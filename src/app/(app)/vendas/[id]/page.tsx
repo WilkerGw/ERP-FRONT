@@ -10,12 +10,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { formatCurrency, formatDate } from '@/lib/formatters';
-import { ArrowLeft, Edit, Trash2, CheckCircle } from 'lucide-react'; // 1. Adicionado ícone de CheckCircle
-import { IVenda } from '@/models/Venda';
+import { formatCurrency } from '@/lib/formatters';
+import { ArrowLeft, Edit, Trash2, CheckCircle } from 'lucide-react';
+import { IVendaPopulada } from '@/types/models'; // Importamos a nossa nova interface
 
 // Função para buscar uma única venda
-const fetchVendaById = async (id: string): Promise<IVenda> => {
+const fetchVendaById = async (id: string): Promise<IVendaPopulada> => {
   const { data } = await api.get(`/vendas/${id}`);
   return data;
 };
@@ -26,20 +26,17 @@ const DetalhesVendaPage = () => {
   const queryClient = useQueryClient();
   const id = params.id as string;
 
-  // Query para buscar os dados da venda
-  const { data: venda, isLoading, error } = useQuery<IVenda>({
+  const { data: venda, isLoading, error } = useQuery<IVendaPopulada>({
     queryKey: ['venda', id],
     queryFn: () => fetchVendaById(id),
     enabled: !!id,
   });
 
-  // --- LÓGICA PARA ATUALIZAR STATUS (ADICIONADA AQUI) ---
   const updateStatusMutation = useMutation({
     mutationFn: ({ vendaId, status }: { vendaId: string, status: string }) => {
       return api.patch(`/vendas/${vendaId}/status`, { status });
     },
     onSuccess: () => {
-      // Invalida tanto a query da lista quanto a query de detalhe para atualizar os dados
       queryClient.invalidateQueries({ queryKey: ['vendas'] });
       queryClient.invalidateQueries({ queryKey: ['venda', id] });
       alert('Status da venda atualizado com sucesso!');
@@ -49,7 +46,6 @@ const DetalhesVendaPage = () => {
     }
   });
 
-  // --- LÓGICA PARA DELETAR VENDA (Existente) ---
   const deleteMutation = useMutation({
     mutationFn: (vendaId: string) => api.delete(`/vendas/${vendaId}`),
     onSuccess: () => {
@@ -71,6 +67,11 @@ const DetalhesVendaPage = () => {
   const handleMarcarConcluido = () => {
     updateStatusMutation.mutate({ vendaId: id, status: 'Concluído' });
   };
+  
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '--';
+    return new Date(dateString).toLocaleDateString('pt-BR');
+  };
 
   if (isLoading) {
     return <div className="p-10">Carregando detalhes da venda...</div>;
@@ -84,61 +85,55 @@ const DetalhesVendaPage = () => {
     <div className="container mx-auto p-4 md:p-8">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <Button variant="outline" size="sm" asChild className='text-gray-500'>
+          <Button variant="outline" size="sm" asChild>
             <Link href="/vendas">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Voltar para Vendas
             </Link>
           </Button>
-          <h1 className="text-3xl text-blue-300">Detalhes da Venda</h1>
-          <p className="text-muted-foreground opacity-80">ID da Venda: {venda._id}</p>
+          <h1 className="text-3xl font-bold mt-2">Detalhes da Venda</h1>
+          <p className="text-muted-foreground">ID da Venda: {venda._id}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-           {/* --- NOVO BOTÃO ADICIONADO AQUI --- */}
            {venda.status === 'Pendente' && (
              <Button 
-                className='text-gray-800/50'
                 onClick={handleMarcarConcluido} 
                 disabled={updateStatusMutation.isPending}
-                variant="default" // Pode ser 'default' ou 'secondary'
+                variant="default"
              >
                <CheckCircle className="mr-2 h-4 w-4" />
                {updateStatusMutation.isPending ? 'Marcando...' : 'Marcar como Concluído'}
              </Button>
            )}
-           <Button className='opacity-50' variant="outline" asChild>
+           <Button variant="outline" asChild>
              <Link href={`/vendas/${id}/editar`}>
                <Edit className="mr-2 h-4 w-4" />
                Editar Venda
              </Link>
            </Button>
-           <Button className='opacity-50' variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
+           <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
              <Trash2 className="mr-2 h-4 w-4" />
              {deleteMutation.isPending ? 'Excluindo...' : 'Excluir Venda'}
            </Button>
         </div>
       </div>
 
-      {/* O resto do JSX da página continua igual... */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-6">
           <Card>
-            <CardHeader><CardTitle className='text-gray-800/50'>Cliente</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Cliente</CardTitle></CardHeader>
             <CardContent>
-              {/* @ts-ignore */}
-              <p className="text-3xl text-blue-300">{venda.cliente.fullName}</p>
-              {/* @ts-ignore */}
-              <p className=" text-gray-800/50">{venda.cliente.email}</p>
-              {/* @ts-ignore */}
-              <p className=" text-gray-800/50">{venda.cliente.phone}</p>
+              <p className="font-semibold text-lg">{venda.cliente.fullName}</p>
+              <p className="text-muted-foreground">{venda.cliente.email}</p>
+              <p className="text-muted-foreground">{venda.cliente.phone}</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle className='text-gray-800/50'>Resumo do Pagamento</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Resumo do Pagamento</CardTitle></CardHeader>
             <CardContent className="space-y-2">
-                <div className="flex justify-between text-gray-800/50"><span>Valor Total:</span> <strong>{formatCurrency(venda.valorTotal)}</strong></div>
-                <div className="flex justify-between text-gray-800/50"><span>Entrada:</span> <span>{formatCurrency(venda.pagamento.valorEntrada)}</span></div>
-                <div className="flex justify-between text-red-600/80"><div>Valor Restante:</div> <div>{formatCurrency(venda.pagamento.valorRestante)}</div></div>
+                <div className="flex justify-between"><span>Valor Total:</span> <strong>{formatCurrency(venda.valorTotal)}</strong></div>
+                <div className="flex justify-between"><span>Entrada:</span> <span>{formatCurrency(venda.pagamento.valorEntrada)}</span></div>
+                <div className="flex justify-between text-red-600"><strong>Valor Restante:</strong> <strong>{formatCurrency(venda.pagamento.valorRestante)}</strong></div>
                 <hr className="my-2"/>
                 <div className="flex justify-between text-sm text-muted-foreground"><span>Condição:</span> <span>{venda.pagamento.condicaoPagamento}</span></div>
                 <div className="flex justify-between text-sm text-muted-foreground"><span>Método:</span> <span>{venda.pagamento.metodoPagamento}</span></div>
@@ -148,7 +143,7 @@ const DetalhesVendaPage = () => {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader className="flex flex-row justify-between items-center">
-              <CardTitle className='text-gray-800/50'>Itens da Venda ({venda.produtos.length})</CardTitle>
+              <CardTitle>Itens da Venda ({venda.produtos.length})</CardTitle>
                <Badge variant={venda.status === 'Concluído' ? 'default' : 'secondary'}>{venda.status}</Badge>
             </CardHeader>
             <CardContent>
@@ -164,17 +159,16 @@ const DetalhesVendaPage = () => {
                 <TableBody>
                   {venda.produtos.map((item, index) => (
                     <TableRow key={index}>
-                      {/* @ts-ignore */}
-                      <TableCell className='text-gray-800/50'>{item.produto.nome || 'Produto não encontrado'}</TableCell>
-                      <TableCell className="text-center text-gray-800/50">{item.quantidade}</TableCell>
-                      <TableCell className="text-right text-gray-800/50">{formatCurrency(item.valorUnitario)}</TableCell>
-                      <TableCell className="text-right text-gray-800/50">{formatCurrency(item.quantidade * item.valorUnitario)}</TableCell>
+                      <TableCell>{item.produto?.nome || 'Produto não encontrado'}</TableCell>
+                      <TableCell className="text-center">{item.quantidade}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(item.valorUnitario)}</TableCell>
+                      <TableCell className="text-right">{formatCurrency(item.quantidade * item.valorUnitario)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </CardContent>
-             <CardFooter className="flex justify-end bg-gray-50 p-4 font-bold text-xl text-gray-800/50">
+             <CardFooter className="flex justify-end bg-gray-50 p-4 font-bold text-xl">
                 <span>Total: {formatCurrency(venda.valorTotal)}</span>
              </CardFooter>
           </Card>
