@@ -32,7 +32,7 @@ interface IProduto {
 // Props que o nosso formulário irá aceitar
 interface VendaFormProps {
   initialData?: TVendaFormValidator & { cliente?: ICliente };
-  vendaId?: string; // O ID da venda para o modo de edição
+  vendaId?: string;
 }
 
 export const VendaForm = ({ initialData, vendaId }: VendaFormProps) => {
@@ -50,7 +50,7 @@ export const VendaForm = ({ initialData, vendaId }: VendaFormProps) => {
     defaultValues: initialData || {
       clienteId: '',
       produtos: [],
-      porcentagemEntrada: 0,
+      valorEntrada: 0, // Alterado de porcentagem para valor
       condicaoPagamento: 'À vista',
       metodoPagamento: 'Dinheiro',
       parcelas: 1,
@@ -89,7 +89,6 @@ export const VendaForm = ({ initialData, vendaId }: VendaFormProps) => {
     return () => clearTimeout(debounce);
   }, [buscaProduto]);
 
-
   const selecionarCliente = (cliente: ICliente) => {
     form.setValue('clienteId', cliente._id);
     setClienteSelecionado(cliente);
@@ -103,17 +102,19 @@ export const VendaForm = ({ initialData, vendaId }: VendaFormProps) => {
     setProdutos([]);
   };
 
-  // Cálculos (sem alteração)
+  // --- LÓGICA DE CÁLCULO ATUALIZADA ---
   const produtosDaVenda = form.watch('produtos');
-  const porcentagemEntrada = form.watch('porcentagemEntrada');
+  const valorEntrada = form.watch('valorEntrada');
   const condicaoPagamento = form.watch('condicaoPagamento');
+  
   const valorTotal = produtosDaVenda.reduce((acc, produto) => acc + (produto.quantidade * produto.valorUnitario), 0);
-  const valorEntrada = (valorTotal * (porcentagemEntrada || 0)) / 100;
-  const valorRestante = valorTotal - valorEntrada;
-  const porcentagemRestante = 100 - (porcentagemEntrada || 0);
+  const valorRestante = valorTotal - (valorEntrada || 0);
+  const porcentagemEntradaCalculada = valorTotal > 0 ? ((valorEntrada || 0) / valorTotal) * 100 : 0;
+
 
   const onSubmit = async (data: TVendaFormValidator) => {
     try {
+      // O payload agora envia o valor de entrada e restante já calculados
       const payload = {
         cliente: data.clienteId,
         produtos: data.produtos.map(p => ({ 
@@ -122,8 +123,8 @@ export const VendaForm = ({ initialData, vendaId }: VendaFormProps) => {
             valorUnitario: p.valorUnitario 
         })),
         pagamento: {
-          valorEntrada,
-          valorRestante,
+          valorEntrada: data.valorEntrada,
+          valorRestante: valorRestante,
           metodoPagamento: data.metodoPagamento,
           condicaoPagamento: data.condicaoPagamento,
           parcelas: data.condicaoPagamento === 'A prazo' ? data.parcelas : undefined
@@ -151,7 +152,6 @@ export const VendaForm = ({ initialData, vendaId }: VendaFormProps) => {
     }
   };
 
-  // O JSX do formulário é o mesmo da página "Nova Venda", apenas colado aqui dentro
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -228,7 +228,7 @@ export const VendaForm = ({ initialData, vendaId }: VendaFormProps) => {
                       <FormField control={form.control} name={`produtos.${index}.quantidade`} render={({ field }) => (<Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />)} />
                     </TableCell>
                     <TableCell>
-                      <FormField control={form.control} name={`produtos.${index}.valorUnitario`} render={({ field }) => (<Input type="number" {...field} onChange={e => field.onChange(Number(e.target.value))} />)} />
+                      <FormField control={form.control} name={`produtos.${index}.valorUnitario`} render={({ field }) => (<Input type="number" step="0.01" {...field} onChange={e => field.onChange(Number(e.target.value))} />)} />
                     </TableCell>
                     <TableCell className="text-right text-gray-800/50">{formatCurrency(produtosDaVenda[index].quantidade * produtosDaVenda[index].valorUnitario)}</TableCell>
                     <TableCell>
@@ -244,18 +244,19 @@ export const VendaForm = ({ initialData, vendaId }: VendaFormProps) => {
 
         {/* Card de Pagamento */}
         <Card>
-          <CardHeader><CardTitle className='text-gray-800/50'>3. Pagamento</CardTitle></CardHeader>
+          <CardHeader><CardTitle>3. Pagamento</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <FormField control={form.control} name="porcentagemEntrada" render={({ field }) => (<FormItem><FormLabel>Entrada (%)</FormLabel><FormControl><Input type="number" placeholder="Ex: 50" {...field} onChange={e => field.onChange(Number(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
+            {/* --- CAMPO ATUALIZADO DE PORCENTAGEM PARA VALOR --- */}
+            <FormField control={form.control} name="valorEntrada" render={({ field }) => (<FormItem><FormLabel>Entrada (R$)</FormLabel><FormControl><Input type="number" step="0.01" placeholder="Ex: 100,00" {...field} onChange={e => field.onChange(Number(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="condicaoPagamento" render={({ field }) => (<FormItem><FormLabel>Condição</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione a condição" /></SelectTrigger></FormControl><SelectContent><SelectItem value="À vista">À vista</SelectItem><SelectItem value="A prazo">A prazo</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
             <FormField control={form.control} name="metodoPagamento" render={({ field }) => (<FormItem><FormLabel>Forma de Pagamento</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecione a forma" /></SelectTrigger></FormControl><SelectContent><SelectItem value="Dinheiro">Dinheiro</SelectItem><SelectItem value="Cartão de Crédito">Cartão de Crédito</SelectItem><SelectItem value="Cartão de Débito">Cartão de Débito</SelectItem><SelectItem value="PIX">PIX</SelectItem><SelectItem value="Boleto">Boleto</SelectItem></SelectContent></Select><FormMessage /></FormItem>)} />
             {condicaoPagamento === 'A prazo' && (<FormField control={form.control} name="parcelas" render={({ field }) => (<FormItem><FormLabel>Parcelas</FormLabel><FormControl><Input type="number" placeholder="Ex: 3" {...field} onChange={e => field.onChange(Number(e.target.value))} /></FormControl><FormMessage /></FormItem>)} />)}
           </CardContent>
           <CardFooter className="flex justify-end bg-gray-50 p-4 rounded-b-md text-gray-800/50">
             <div className='text-right'>
-              <p>Valor de Entrada: <span className='font-bold'>{formatCurrency(valorEntrada)}</span></p>
+              {/* --- EXIBIÇÃO ATUALIZADA --- */}
+              <p>Valor de Entrada: <span className='font-bold'>{formatCurrency(valorEntrada)} ({porcentagemEntradaCalculada.toFixed(2)}%)</span></p>
               <p>Valor Restante: <span className='font-bold'>{formatCurrency(valorRestante)}</span></p>
-              <p>Restante na Entrega: <span className='font-bold'>{porcentagemRestante.toFixed(2)}%</span></p>
               <p className='text-xl font-bold mt-2'>Total da Venda: {formatCurrency(valorTotal)}</p>
             </div>
           </CardFooter>

@@ -6,9 +6,8 @@ import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/services/api';
 import { VendaForm } from '@/components/vendas/VendaForm';
-import { IVendaPopulada } from '@/types/models'; // Importamos a nossa nova interface
+import { IVendaPopulada } from '@/types/models';
 
-// Função para buscar os dados da venda que será editada
 const fetchVendaById = async (id: string): Promise<IVendaPopulada> => {
   const { data } = await api.get(`/vendas/${id}`);
   return data;
@@ -32,7 +31,8 @@ const EditarVendaPage = () => {
     return <div className="container mx-auto p-4 text-red-500">Erro ao carregar a venda para edição.</div>;
   }
 
-  // Mapeia os dados da API para o formato que o formulário espera
+  // --- MAPEAMENTO DE DADOS ATUALIZADO ---
+  // Mapeia os dados da API para o formato que o novo formulário espera
   const formattedInitialData = {
     clienteId: initialData.cliente._id,
     produtos: initialData.produtos.map(p => ({
@@ -41,8 +41,8 @@ const EditarVendaPage = () => {
       quantidade: p.quantidade,
       valorUnitario: p.valorUnitario,
     })),
-    // Calcula a porcentagem de entrada com base nos valores
-    porcentagemEntrada: initialData.valorTotal > 0 ? (initialData.pagamento.valorEntrada / initialData.valorTotal) * 100 : 0,
+    // Agora passamos o valorEntrada diretamente
+    valorEntrada: initialData.pagamento.valorEntrada, 
     condicaoPagamento: initialData.pagamento.condicaoPagamento,
     metodoPagamento: initialData.pagamento.metodoPagamento,
     parcelas: initialData.pagamento.parcelas || 1,

@@ -15,8 +15,10 @@ export const vendaFormValidator = z.object({
   clienteId: z.string().nonempty("O cliente é obrigatório."),
   produtos: z.array(produtoVendaValidator).min(1, "Adicione pelo menos um produto à venda."),
   
-  // Detalhes do Pagamento
-  porcentagemEntrada: z.number().min(0, "A porcentagem não pode ser negativa.").max(100, "A porcentagem não pode ser maior que 100."),
+  // --- ALTERAÇÃO AQUI ---
+  // Removemos 'porcentagemEntrada' e adicionamos 'valorEntrada'
+  valorEntrada: z.coerce.number().min(0, "O valor de entrada não pode ser negativo."),
+  
   condicaoPagamento: z.enum(['À vista', 'A prazo']),
   metodoPagamento: z.enum(['Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'PIX', 'Boleto']),
   parcelas: z.number().min(1, "O número de parcelas deve ser pelo menos 1.").optional(),
