@@ -22,10 +22,12 @@ import {
   Sparkles,
   LogOut,
   Landmark,
+  DollarSign, // Ícone para vendas
+  Wallet,     // Ícone para vendas
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Interfaces atualizadas (sem os campos de vendas)
+// Interfaces atualizadas para incluir os campos de vendas
 interface Insight {
   _id: string;
   titulo: string;
@@ -34,6 +36,8 @@ interface Insight {
 }
 
 interface DashboardStats {
+  totalVendasDia: number; // Novo campo
+  totalVendasMes: number; // Novo campo
   boletosVencidos: number;
   boletosProximos: number;
   agendamentosProximos: number;
@@ -119,12 +123,22 @@ function HomePage() {
         </Button>
       </header>
       
+      {/* --- CARDS ATUALIZADOS --- */}
       <main className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:items-start">
-        
+        <StatCard
+            title="Vendas do Dia"
+            value={formatCurrency(stats?.totalVendasDia)}
+            icon={<DollarSign className="text-green-500" />}
+        />
+        <StatCard
+            title="Vendas do Mês"
+            value={formatCurrency(stats?.totalVendasMes)}
+            icon={<Wallet className="text-green-500" />}
+        />
         <StatCard
             title="Saldo em Caixa"
             value={formatCurrency(caixaData?.saldo)}
-            icon={<Landmark className="text-green-500" />}
+            icon={<Landmark className="text-blue-500" />}
         />
         <StatCard
           title="Agendamentos Próximos"
@@ -150,9 +164,8 @@ function HomePage() {
           icon={<Calendar className="text-yellow-500" />}
         />
 
-
         {insight && (
-          <div className="sm:col-span-2 lg:col-span-3 h-96 flex flex-col">
+          <div className="sm:col-span-2 lg:col-span-2 h-96 flex flex-col">
             <Card className='flex-1 flex flex-col min-h-0'>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -173,7 +186,7 @@ function HomePage() {
           </div>
         )}
 
-        <div className="sm:col-span-2 lg:col-span-1">
+        <div className="sm:col-span-2 lg:col-span-2">
             <StatCard
             title="Aniversariantes do Mês"
             value={stats?.aniversariantesMes.length || 0}
