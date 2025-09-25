@@ -1,7 +1,5 @@
 // Caminho: src/types/models.d.ts
 
-// Interfaces que representam os dados após o 'populate' do Mongoose no backend
-
 export interface IClientePopulado {
   _id: string;
   fullName: string;
@@ -38,4 +36,41 @@ export interface IVendaPopulada {
   pagamento: IPagamento;
   status: 'Pendente' | 'Concluído' | 'Cancelado';
   dataVenda: string;
+}
+
+// --- INTERFACE DA O.S. ATUALIZADA ---
+export type StatusOrdemServico = 
+  | 'Aguardando Laboratório'
+  | 'Em Produção'
+  | 'Em Montagem'
+  | 'Disponível para Retirada'
+  | 'Entregue'
+  | 'Cancelada';
+
+export interface IOrdemServicoPopulada {
+    _id: string;
+    numeroOS: number;
+    cliente: IClientePopulado;
+    venda: IVendaPopulada; // Agora populamos a venda inteira
+    status: StatusOrdemServico;
+    previsaoEntrega?: string;
+    dataEntrega?: string;
+    createdAt: string;
+    observacoes?: string;
+    laboratorio?: string;
+    receita: {
+        esfericoDireito?: string;
+        cilindricoDireito?: string;
+        eixoDireito?: string;
+        esfericoEsquerdo?: string;
+        cilindricoEsquerdo?: string;
+        eixoEsquerdo?: string;
+        adicao?: string;
+        altura?: string;
+        dp?: string;
+    };
+    produtosServico: {
+        produto: string; // ID do produto
+        nome: string;
+    }[];
 }

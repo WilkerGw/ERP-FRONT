@@ -8,21 +8,23 @@ import {
   LayoutDashboard,
   Users,
   Package,
-  ShoppingCart, // 1. Ícone de Vendas reintroduzido
+  ShoppingCart,
   FileText,
   Calendar,
   BarChart3,
   Landmark,
+  ClipboardList, // Ícone para a Ordem de Serviço
 } from "lucide-react";
 import Image from "next/image";
 
-// 2. Lista de navegação com o item "Vendas" de volta
+// Lista de navegação com o novo item "Ordens de Serviço"
 const navItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Relatórios", href: "/relatorios", icon: BarChart3 },
   { name: "Agendamentos", href: "/agendamentos", icon: Calendar },
   { name: "Clientes", href: "/clientes", icon: Users },
-  { name: "Vendas", href: "/vendas", icon: ShoppingCart }, // ITEM "VENDAS" DE VOLTA
+  { name: "Vendas", href: "/vendas", icon: ShoppingCart },
+  { name: "Ordens de Serviço", href: "/ordens-servico", icon: ClipboardList }, // NOVO ITEM AQUI
   { name: "Boletos", href: "/boletos", icon: FileText },
   { name: "Produtos", href: "/produtos", icon: Package },
   { name: "Caixa", href: "/caixa", icon: Landmark },
