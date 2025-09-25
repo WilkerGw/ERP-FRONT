@@ -85,7 +85,7 @@ const VendasPage = () => {
     <div className="p-6 md:p-8 lg:p-10 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl text-blue-300">Vendas</h1>
-        <Button className="text-gray-800/50" asChild>
+        <Button asChild className='text-gray-800/50'>
           <Link href="/vendas/nova">
             <PlusCircle className="mr-2 h-4 w-4" /> Nova Venda
           </Link>
@@ -111,10 +111,15 @@ const VendasPage = () => {
             <TableBody>
               {vendas && vendas.map((venda) => (
                 <TableRow key={venda._id}>
-                  <TableCell className='text-gray-800/50'>{venda.cliente?.fullName || 'Cliente não informado'}</TableCell>
+                  {/* --- CÉLULA DO CLIENTE AGORA É UM LINK --- */}
+                  <TableCell className="font-medium text-gray-800/50">
+                    <Link href={`/vendas/${venda._id}`} className="hover:underline">
+                      {venda.cliente?.fullName || 'Cliente não informado'}
+                    </Link>
+                  </TableCell>
                   <TableCell className='text-gray-800/50'>{formatDate(venda.dataVenda)}</TableCell>
                   <TableCell className="text-right text-gray-800/50">{formatCurrency(venda.valorTotal)}</TableCell>
-                  <TableCell className="text-right font-medium text-red-500">
+                  <TableCell className="text-right text-red-500">
                     {formatCurrency(venda.pagamento?.valorRestante)}
                   </TableCell>
                   <TableCell className="text-center">
@@ -131,6 +136,11 @@ const VendasPage = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                         <DropdownMenuItem>
+                           <Link href={`/vendas/${venda._id}`} className="w-full h-full">
+                            Ver Detalhes
+                           </Link>
+                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleMarcarConcluido(venda._id)}>
                           Marcar como Concluído
                         </DropdownMenuItem>
