@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 
-// --- CSP: Criação da Política de Segurança de Conteúdo ATUALIZADA ---
-// Adicionamos as URLs da nossa API à diretiva 'connect-src'
+// --- CSP: Atualização da Política de Segurança ---
 const cspHeader = `
     default-src 'self';
-    connect-src 'self' http://localhost:3001 https://erp-api-tau.vercel.app;
+    // --- MUDANÇA AQUI: Adicionamos a URL do Render e removemos a antiga ---
+    connect-src 'self' http://localhost:3001 https://erp-back-gp9k.onrender.com;
     script-src 'self' 'unsafe-eval' 'unsafe-inline';
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data:;
