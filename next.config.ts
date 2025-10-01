@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 
-// --- CSP: Atualização da Política de Segurança ---
+// --- CSP: Criação da Política de Segurança de Conteúdo (Sintaxe Corrigida) ---
 const cspHeader = `
     default-src 'self';
-    // --- MUDANÇA AQUI: Adicionamos a URL do Render e removemos a antiga ---
     connect-src 'self' http://localhost:3001 https://erp-back-gp9k.onrender.com;
     script-src 'self' 'unsafe-eval' 'unsafe-inline';
     style-src 'self' 'unsafe-inline';
@@ -28,6 +27,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
+            // A função replace remove quebras de linha e espaços extra, garantindo que o valor final é uma string única e válida.
             value: cspHeader.replace(/\s{2,}/g, ' ').trim(),
           },
           {
