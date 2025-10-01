@@ -216,7 +216,7 @@ function HomePage() {
                         ))
                     ) : (
                         <li className="text-muted-foreground">
-                        Nenhum aniversariante este mês.
+                        Nenhum aniversariante este mês
                         </li>
                     )}
                     </ul>

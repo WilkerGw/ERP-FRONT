@@ -26,7 +26,7 @@ export default function AppLayout({
       <div className="flex flex-col lg:pl-72">
         <header className="flex h-16 items-center justify-between gap-4 border-b bg-sidebar px-6 lg:hidden sticky top-0 z-30">
           <Link href="/" className="flex items-center gap-2">
-            {/* Adicionada a propriedade "priority" para otimizar o carregamento da imagem */}
+            {/* --- CORREÇÃO AQUI --- */}
             <Image src="/images/logo-mind.png" alt="Logo" width={32} height={32} priority />
             <span className="font-bold">Mind ERP</span>
           </Link>

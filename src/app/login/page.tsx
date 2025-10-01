@@ -1,3 +1,5 @@
+// Caminho: ERP-FRONT-main/src/app/login/page.tsx
+
 'use client';
 
 import { useState, FormEvent } from 'react';
@@ -33,9 +35,10 @@ export default function LoginPage() {
 
     } catch (err: unknown) {
       console.error('Erro no login:', err);
-      let errorMessage = 'Erro de rede ou falha ao conectar.';
+      let errorMessage = 'Não foi possível conectar ao servidor. Tente novamente mais tarde.';
       if (axios.isAxiosError(err) && err.response) {
-        errorMessage = err.response.data?.error || errorMessage;
+        // Usa a mensagem de erro do backend se disponível, caso contrário, uma mensagem padrão.
+        errorMessage = err.response.data?.error || 'Usuário ou senha inválidos.';
       }
       setError(errorMessage);
     } finally {
@@ -46,7 +49,7 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="p-8 bg-card backdrop-blur-lg border border-border rounded-xl shadow-xl w-full max-w-md text-card-foreground">
-        <Image src="/images/logo-mind.png" alt="Logo" width={200} height={200} className='mx-auto'></Image>
+        <Image src="/images/logo-mind.png" alt="Logo" width={200} height={200} className='mx-auto' priority />
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block mb-2 text-gray-900" htmlFor="email">Email</label>

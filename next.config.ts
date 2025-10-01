@@ -1,12 +1,54 @@
 /** @type {import('next').NextConfig} */
+
+// --- CSP: Criação da Política de Segurança de Conteúdo ATUALIZADA ---
+// Adicionamos as URLs da nossa API à diretiva 'connect-src'
+const cspHeader = `
+    default-src 'self';
+    connect-src 'self' http://localhost:3001 https://erp-api-tau.vercel.app;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' blob: data:;
+    font-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+`;
+
 const nextConfig = {
-  // --- ADICIONE ESTA SEÇÃO ---
   typescript: {
-    // !! ATENÇÃO !!
-    // Usamos esta opção para ignorar erros de build do TypeScript.
-    // É uma solução pragmática para contornar problemas de tipo complexos
-    // que impedem o deploy.
     ignoreBuildErrors: true,
+  },
+
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: cspHeader.replace(/\s{2,}/g, ' ').trim(),
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
   },
 };
 
